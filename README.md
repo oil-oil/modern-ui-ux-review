@@ -28,6 +28,24 @@
 - 视觉规范：强调 CRAP（对比/重复/对齐/亲密性）与间距规整
 - 图标规范：禁止 emoji 图标，要求统一图标集
 
+## 跨工具支持（Codex / Claude Code / Cursor / Windsurf）
+
+结论先说：目前没有一个被所有工具完全统一的“单文件标准”。  
+实践里最稳的做法是：
+
+- 用 `AGENTS.md` 作为跨工具通用指令入口（单一真源）
+- 用各工具的适配文件做轻量桥接（例如 `CLAUDE.md`、`.cursor/rules/*.mdc`）
+- 保留 `SKILL.md` 作为本 Skill 的行为定义
+
+当前仓库已按这个方式配置。
+
+## 各工具如何使用
+
+- Codex：原生 Skill 工作流，读取 `SKILL.md` 与 `agents/openai.yaml`
+- Claude Code：项目内读取 `CLAUDE.md`（已桥接到 `AGENTS.md` + `SKILL.md`）
+- Cursor：可读取 `AGENTS.md`，并支持 `.cursor/rules/*.mdc`
+- Windsurf：支持 `AGENTS.md` 作为项目级代理指令
+
 ## 安装与配置（Codex）
 
 ### 方式 A：通过 GitHub 安装（推荐）
@@ -50,6 +68,9 @@ scripts/install-skill-from-github.py --repo oil-oil/modern-ui-ux-review --path .
 
 ```text
 ~/.codex/skills/modern-ui-ux-review/
+  AGENTS.md
+  CLAUDE.md
+  .cursor/rules/modern-ui-ux-review.mdc
   SKILL.md
   agents/openai.yaml
   references/
@@ -58,7 +79,7 @@ scripts/install-skill-from-github.py --repo oil-oil/modern-ui-ux-review --path .
 
 安装后重启 Codex，使新 Skill 生效。
 
-## 如何告诉 AI 触发这个 Skill
+## 让不同 AI 正确触发这个 Skill
 
 你可以用两种方式触发：
 
@@ -67,6 +88,8 @@ scripts/install-skill-from-github.py --repo oil-oil/modern-ui-ux-review --path .
 2. 直接描述匹配任务
    - “帮我评审这个仪表盘，按 P0/P1/P2 给修复建议。”
    - “给我这个创建流程的简洁 UX 规则，重点防止提示堆叠。”
+
+建议在 Claude/Cursor/Windsurf 里也显式带上 `modern-ui-ux-review`，这样触发更稳定。
 
 ## 推荐提示词模板
 
@@ -105,6 +128,9 @@ scripts/install-skill-from-github.py --repo oil-oil/modern-ui-ux-review --path .
 
 ## 仓库结构
 
+- `AGENTS.md`：跨工具共享指令（推荐作为单一真源）
+- `CLAUDE.md`：Claude Code 入口（桥接到共享指令）
+- `.cursor/rules/modern-ui-ux-review.mdc`：Cursor 规则入口（桥接到共享指令）
 - `SKILL.md`：Skill 主规则与工作流
 - `agents/openai.yaml`：Skill 展示信息与默认提示
 - `references/design-psych.md`：设计心理学诊断词汇
@@ -112,6 +138,12 @@ scripts/install-skill-from-github.py --repo oil-oil/modern-ui-ux-review --path .
 - `references/review-template.md`：标准评审输出模板
 - `references/checklists.md`：扩展检查清单
 - `index.html`：Skill 介绍与可视化示例页面
+
+## 参考文档
+
+- Claude Code 记忆机制（`CLAUDE.md`）：<https://docs.anthropic.com/en/docs/claude-code/memory>
+- Cursor 规则与 `AGENTS.md`：<https://docs.cursor.com/context/rules-for-ai>
+- Windsurf `AGENTS.md` 支持：<https://docs.windsurf.com/windsurf/cascade/memories>
 
 ## 许可证
 

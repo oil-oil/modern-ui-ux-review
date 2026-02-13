@@ -1,0 +1,8 @@
+---
+description: Shared instructions for maintaining modern-ui-ux-review
+alwaysApply: true
+---
+
+Follow `@AGENTS.md` as the repository-level instruction source.
+
+When editing the skill itself, also follow `@SKILL.md`.
