@@ -36,11 +36,11 @@ Phase 5   Output design-spec.md
 
 ---
 
-## Phase 0: Codebase scan (mandatory, silent)
+## Phase 0: 先看代码（必做，安静地做）
 
-Before asking the user *anything*, scan for existing design tokens. Do this even if the user seems impatient — it takes 30 seconds and prevents you from asking questions the code already answers.
+不管用户多急，**这一步不可省**。30 秒能避免后面问出几个项目里已经定下来的问题——那种"哦我已经选过 Inter 了"的尴尬反馈，是 skill 失败感的最大来源。
 
-**Glob patterns:**
+### 扫什么
 
 ```
 - tailwind.config.{js,ts,mjs,cjs}
@@ -48,27 +48,83 @@ Before asking the user *anything*, scan for existing design tokens. Do this even
 - **/tokens.{js,ts,json,css}
 - **/variables.css, **/globals.css, **/index.css, **/app.css
 - **/design-system/**, **/design-tokens/**, **/styles/**
-- package.json → UI framework signals (shadcn, radix, chakra, antd, mui, naive-ui, daisyui, etc.)
-- **/*.{tsx,vue,svelte} sample 2–3 representative components → how tokens are actually used
+- package.json → 看 UI 框架（shadcn / radix / chakra / antd / mui / naive-ui / daisyui...）
+- 项目根目录的 design-spec.md / DESIGN.md / AGENT.md / README.md 里有没有提设计
+- 挑 2–3 个真实的 UI 文件（按 src/components 或 app 目录下），看实际用法
 ```
 
-**Form a factual summary**, not a verdict. The summary should answer:
+### 看的是事实，不是判断
 
-- What's defined? (colors, type scale, radii, spacing, shadow tiers)
-- What's the framework / component library?
-- Are there obvious inconsistencies? (radius scattered across 4 / 8 / 12 / 20 px; ad-hoc hex in components)
-- Is there an existing brand assets folder, logo file, or design-system README?
+总结里只放观察到的事实，不要立刻评价好坏：
 
-**Open the conversation with the summary, then a question** — not a recommendation:
+- 定义了哪些 token（颜色 / 字号 / 圆角 / 间距 / 阴影分层）？
+- 用了什么框架 / 组件库？
+- 有没有视觉上的隐喻或主题（"Quiet Studio"、"Cockpit" 这种从命名能看出的世界观）？
+- 注释里有没有迭代痕迹？（"WCAG-tightened"、"bumped from X to Y"、"removed because..." 这种一看就是认真做过的人写的）
+- 圆角 / 间距是否一致？还是 4/8/16/20 各处散落？
 
-> "I scanned the project. I found Tailwind with the default palette, no custom theme tokens, and shadcn/ui in a few components. Border-radius is mixed (4 / 8 / 16 used in different places). Before I start asking questions: is there anything you've already decided — brand color, font, references — that I should treat as fixed?"
+### 然后判断这个项目处在哪个阶段
 
-If the user says "no, start from scratch" → continue to Phase 1.
-If the user names constraints → log them; skip those questions in Phase 1.
+把项目放进这五档之一。**不同档位的开场白完全不一样**：
+
+| 档位 | 信号 | 后续走向 |
+|---|---|---|
+| **A. 空白** | Tailwind 默认配色，无自定义 token，没几个真组件 | 走完整的"找意象 → 选 token → 出业务设计稿"流程 |
+| **B. 半成品** | 有些 token 但分散，组件风格不一致，圆角到处不同 | 帮用户整理已有的，然后补全。不要假装从零开始 |
+| **C. 成熟** | 完整 token 体系 + 一致命名 + 视觉隐喻 + 注释里能看到对比度审计 | **不要走"我们一起定"流程**。直接问来意（看下面五分支） |
+| **D. 复杂遗留** | 有但乱：多套 token 并存、新旧混用、看不出主线 | 先建议走 `review` 模式做审计，不要立刻动手改 |
+| **E. 不确定** | 你扫完心里没底 | 直接告诉用户你看到了什么 + 问他这套系统是想稳定还是想换方向。别强行归类 |
+
+### 开口范式：先描述事实，再问一个开放问题
+
+绝对不要带"我建议..."或者"看起来你应该..."这种话。
+
+**A 类（空白）开口范例**：
+> 我看了下，是新建的 Next + Tailwind 项目，用的是 Tailwind 默认配色，没自定义 theme，组件还很少。在我开始问之前——你有没有什么已经定的，比如品牌色、字体、参考的产品？
+
+**B 类（半成品）开口范例**：
+> 我看了下。你的 globals.css 里定了 background / foreground / primary 几个核心颜色，但圆角在不同组件里有 4 / 8 / 12 三种写法，shadcn 装了但只用了 button 和 card。你想让我帮你把现有的整理一遍统一好，还是借这次机会换个方向？
+
+**C 类（成熟）开口范例**：
+> 我先扫了一下。你这项目是 Next 15 + shadcn + Tailwind v3，globals.css 顶上写了 "Quiet Studio · dark-first"，已经有完整的 token 体系（HSL 变量 + 双模式），还有一个贯穿的视觉隐喻——桌面、纸、胶带、印章。muted-foreground 注释里能看到做过 WCAG 审计。
+>
+> 你叫我来 design，具体是想做哪一种：重定方向、扩展现有的、导出一份对外 spec、还是审计一下现有的？
+
+**D 类（复杂遗留）开口范例**：
+> 我扫了下。你的 token 在 globals.css、tailwind.config 和 src/styles/ 三个地方都有定义，圆角在 4 / 6 / 8 / 12 / 16 之间用过，shadcn 装了但有些组件没用、自己写了一套。在动手定新东西之前，我建议先用 review 模式过一遍，按 P0/P1/P2 列清楚现状，不然我改完你可能又不喜欢。要先 review 吗？
+
+**E 类（不确定）开口范例**：
+> 我看了下，有 token 也有几个真实组件（chat-window / workbench），看着是有想法的；但 stamp 和 tape 这些 surface 类的命名让我猜不准你想往哪个方向走。在你回答我下一组问题之前——这套系统对你来说目前是想稳定下来，还是想换个方向？
 
 ---
 
-## Phase 1: Listen
+## Phase 1: 根据来意分流
+
+Phase 0 之后，用户的回答会把对话引向不同分支。**不要把所有项目都按 A 类的"找意象 → 选 token → 出 spec"硬走一遍**——那是只对 A 和 B 适用的剧本。
+
+### 来意 1: 重定方向（换意象）
+信号：用户说"换个感觉"、"现在的太工程感了想温暖一点"、"不要 Linear 了想做个像 Notion 的"。
+做法：完整走 Phase 1b（听）→ Phase 2（找意象）→ Phase 3（选 token）→ Phase 4ab（预览 + 业务设计稿）→ Phase 5（输出）。**但要带着旧 spec 一起讨论**——明确告诉用户哪些旧 token 你打算保留、哪些打算换。
+
+### 来意 2: 扩展现有体系
+信号：用户说"我们要新加一个 marketing landing"、"还没有空状态 / 错误页的设计"、"想把移动端补完"。
+做法：跳过 Phase 2（意象已经定了，沿用）。直接 Phase 3 在已有 token 上设计新 surface，Phase 4ab 渲染新增 surface 的预览和业务稿，Phase 5 把新增内容**追加**进 spec（不要覆盖）。
+
+### 来意 3: 导出对外 spec
+信号：用户说"团队里默契是有的，但要给外包/新人一份独立的 spec"、"想沉淀文档"。
+做法：跳过 Phase 1b–4，直接做"翻译沉淀"：把项目里已有的 token + 隐喻 + 签名细节，按 `references/design-spec-template.md` 整理成完整 spec.html + spec.md。这一步做的是**记录**，不是发明。完成后让用户校对。
+
+### 来意 4: 审计 + 微调
+信号：用户说"我觉得 dark 模式 muted 还是不够亮"、"sheet shadow 太重了"、"找你来挑刺"。
+做法：直接切到 `review` 模式。按 P0/P1/P2 出修复清单，可执行的代码片段附上。不走完整 design 流程。
+
+### 来意 5: 其他
+用户说的不在上面。
+做法：复述你听到的，问"这是属于上面哪种，还是有别的"。**不要硬塞进上面四类**。
+
+---
+
+## Phase 1b: Listen（适用于来意 1 和 2）
 
 The goal is to understand the project well enough to propose options later. Ask in this order, one question at a time, and keep follow-ups light. Skip any question whose answer was already given in Phase 0 or by the user upfront.
 

@@ -19,19 +19,51 @@ When triggered without an explicit mode, run `design`. Switch only when the user
 
 If intent is ambiguous, default to `design` and announce the mode in one short sentence so the user can correct you.
 
-## Hard precondition for `design`: explore the code first, then listen
+## 别一上来就问问题
 
-Before asking the user anything, you **must** run Phase 0 (codebase scan). After Phase 0, you **listen first** — ask open questions about the user's product, brand, and taste; do **not** open with recommendations.
+进入 `design` 模式的第一件事不是问，是看。花 30 秒扫一遍项目：
 
-Phase 0 — what "explored" means:
-1. Glob the project for design tokens (Tailwind config, theme files, CSS variables, design-system folders).
-2. Detect the UI framework from `package.json`.
-3. Sample 2–3 representative UI files to see how tokens are actually used.
-4. Form a factual summary of what exists — *not* a verdict on whether it's good.
+- `tailwind.config` / `theme.ts` / `globals.css` 里有什么 token
+- `package.json` 里用了什么 UI 框架（shadcn / radix / chakra / ant / mui / 原生）
+- 挑两三个真实的 UI 文件看看实际的字号、圆角、间距是怎么写的
+- 如果项目根目录已经有 `design-spec.md` / `DESIGN.md` / `AGENT.md`，**直接读完**
 
-Open with one paragraph: what tokens / framework / consistency level you found. Then ask the user what they want to keep, change, or define from scratch. Recommendations come later, only when invited or when the user is clearly stuck.
+这一步不可省。不看代码就开口，你只是在凭空猜——而且经常会问出"项目里其实早就定了"的问题，让用户立刻觉得你没用心。
 
-Full Phase 0 patterns and the listening-first interview script: `references/design-interview.md`.
+## 看完之后，先判断这个项目处在哪个阶段
+
+很多 skill 失败在这一步：把所有项目当成"白纸"，上来就说"我们一起来定意象吧"——结果用户的项目其实已经有完整的设计系统，只是想做点别的。
+
+扫完之后，把项目放进这五档之一，**不同档位的开口完全不一样**：
+
+1. **空白** — 没 token、没主题、Tailwind 默认配色，没几个真正的组件。
+   → 走完整 design 流程：选意象、选 token、生成业务设计稿、输出 spec。
+
+2. **半成品** — 有些 token 但分散，几个组件风格不统一，圆角 4/8/16 三种都用过。
+   → 帮用户整理已有的，问哪些是"想保留的决定"哪些是"凑合用的"，然后在他基础上补全。
+
+3. **成熟** — token 完整、有清晰的命名空间、有一个统一的视觉隐喻贯穿、注释里能看到对比度审计或迭代痕迹。
+   → **最容易出错的一档**。绝对不要装作"我们一起从头定"——这是对用户工作的不尊重。直接说你看到了什么，然后问：你叫我来 design，具体想做哪一种？（重定方向 / 扩展现有体系 / 导出对外 spec / 审计微调 / 其他）
+
+4. **复杂遗留** — 有但乱：多套 token 并存、新旧风格混用、看不出主线。
+   → 不能上来就改。建议先走 `review` 模式做一次审计，列出 P0/P1/P2，让用户看清现状再决定要不要重构。
+
+5. **不确定** — 你扫完心里没底，不知道是 2 还是 3。
+   → 直接告诉用户："我看到了 X 和 Y，但不太确定你这套系统现在是想稳定下来还是想换方向。你能告诉我吗？" 别强行归类。
+
+## 开口的方式
+
+不管哪一档，开口都是**先描述事实，再问一个开放问题**。不要给判断、不要给建议、不要立刻推荐风格。
+
+成熟项目的开口范例：
+> 我先扫了一下。你这个项目是 Next 15 + shadcn + Tailwind v3，`globals.css` 顶上写了 "Quiet Studio · dark-first"，已经有完整的 token 体系（HSL 变量 + 双模式），还有一个贯穿的视觉隐喻——桌面、纸、胶带、印章。muted-foreground 注释里能看到做过 WCAG 审计。
+>
+> 你叫我来 design，具体是想做哪一种：重定方向、扩展已有的、导出一份对外 spec、还是审计一下现有的？
+
+空白项目的开口范例：
+> 看了下，是新建的 Next + Tailwind 项目，目前用的是 Tailwind 默认配色，没有自定义 theme tokens。还没什么真实组件。在我开始之前——你有没有什么已经定下来的，比如品牌色、字体、想致敬的产品？
+
+完整的对话流程和分支处理见 `references/design-interview.md`。
 
 ---
 
@@ -59,23 +91,33 @@ These shape *how* the skill talks, not *what* it produces.
 
 ## Mode workflows
 
-### `design` (default) — Design Spec Builder
+### `design` 模式 — 默认
 
-Output: `design-spec.md` in the project root, validated against a project-specific business mockup.
+最终产物：项目根目录的 `design-spec.md`（含项目自己业务的设计稿验证）。
 
-1. **Phase 0 · Scan code** (silent, mandatory) — see precondition above.
-2. **Phase 1 · Listen** — open questions about product, audience, brand assets, references the user admires, hard constraints, **primary locale**. No recommendations yet.
-3. **Phase 2 · Style Family selection** — if the user already named a clear direction, confirm it and skip ahead. Otherwise present 2–4 candidate **style families** (`references/style-families/index.md`) as neutral options. The chosen family supplies a token starting point — the user can override anything.
-4. **Phase 3 · Visual choices** — for each remaining unknown, present 2–3 options drawn from the chosen family. Token dimensions: color · type · radius · spacing · shadow · motion · **container strategy · icon system · decoration · locale**. The last four come from `references/extended-dimensions.md` and are real visual decisions; don't skip them.
-5. **Phase 4a · Generic preview** — render tokens on the static template's 5 surfaces (dashboard / marketing / content / form / pricing) for *exploration*. Switchers for container strategy / icon set / decoration / viewport / dark / locale. Iterate by rewriting the JSON config only.
-6. **Phase 4b · Business mockup** ← **the gating artifact**. Generate a standalone HTML of the user's *actual product surface*, in *their language*, applying the *full token set including extended dimensions*. The user makes the final ship/iterate decision here, not in the generic preview. Strict contract: `references/business-mockup-contract.md`.
-7. **Phase 5 · Output** — generate `design-spec.md` only after the user has signed off on the business mockup. Template: `references/design-spec-template.md`.
+整个流程是这样的，但**不是每个项目都从第一步走到最后一步**。Phase 0/1 决定了走完整路径还是走捷径：
 
-Full flow: `references/design-interview.md`
-Style family library: `references/style-families/`
-Extended token dimensions (containerStrategy / iconSystem / decoration / locale): `references/extended-dimensions.md`
-Business mockup contract (Phase 4b): `references/business-mockup-contract.md`
-Preview template: `references/design-preview-template.html`
+1. **看代码 + 判断阶段（Phase 0）** — 必做。30 秒扫一遍项目，把它放进五档之一（空白 / 半成品 / 成熟 / 复杂遗留 / 不确定）。详细见上面"别一上来就问问题"那段。
+
+2. **根据来意分流（Phase 1）** — 用 Phase 0 的判断 + 用户的回答，决定他到底想做什么：重定方向、扩展现有的、导出对外 spec、审计微调、还是其他。**走错分支比走慢更糟糕**。
+
+3. **听细节（Phase 1b）** — 仅在用户要"重定方向"或"扩展"时进入。问产品、听品牌资产、问参考、问硬约束、问主要语言。**不抛推荐**。
+
+4. **找意象（Phase 2）** — 仅在用户要"重定方向"时进入。从意象库里给 2–4 个候选让用户选，鼓励混合（避免趋同）。详见 `references/style-families/`。
+
+5. **挑具体的 token（Phase 3）** — 颜色、字体、圆角、间距、阴影、动效，加上四个常被忽略的：容器策略、图标系统、装饰、语言。每项给 2–3 个选项不带星标推荐。详见 `references/extended-dimensions.md`。
+
+6. **通用预览（Phase 4a）** — 打开模板（`references/design-preview-template.html`）渲染 5 个 surface 让用户快速判断"对路了没"。这是**探索**，不是定稿。
+
+7. **业务化设计稿（Phase 4b）** — **真正的定稿环节**。用最终 token 给用户**自己业务的实际页面**生成一个独立 HTML 文件。用户在自己业务画面上拍板，才进入下一步。严格契约见 `references/business-mockup-contract.md`。
+
+8. **输出（Phase 5）** — 只有当用户对 4b 的业务设计稿点头后才生成 `design-spec.md`。模板见 `references/design-spec-template.md`。
+
+完整对话流程和各分支怎么走：`references/design-interview.md`
+意象库：`references/style-families/`
+四个扩展 token 维度：`references/extended-dimensions.md`
+业务化设计稿契约：`references/business-mockup-contract.md`
+浏览器预览模板：`references/design-preview-template.html`
 
 ### `guide` — Compact rules for a surface
 

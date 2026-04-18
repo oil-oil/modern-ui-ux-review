@@ -74,42 +74,81 @@
     line-height: 1.5;
   }
 
-  /* ===== NEUTRAL CHROME ===== */
-  .chrome-bar {
-    position: sticky; top: 0; z-index: 100;
-    background: #ffffff;
-    border-bottom: 1px solid #e5e5e5;
-    padding: 10px 20px;
-    display: flex; align-items: center; gap: 12px;
-    flex-wrap: wrap;
+  /* ===== APP SHELL: sidebar + stage ===== */
+  .app-shell {
+    display: flex;
+    min-height: 100vh;
+    background: #fafafa;
   }
-  .chrome-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-right: auto; }
-  .chrome-title small { color: #888; font-weight: 400; margin-left: 8px; }
-  .chrome-group { display: flex; align-items: center; gap: 2px; padding: 2px; background: #f5f5f5; border-radius: 6px; }
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border-right: 1px solid #ececec;
+    padding: 20px 16px 24px;
+    display: flex; flex-direction: column;
+    gap: 16px;
+    position: sticky; top: 0; align-self: flex-start;
+    height: 100vh; overflow-y: auto;
+    z-index: 100;
+  }
+  .sidebar-title {
+    font-size: 13px; font-weight: 700; color: #0a0a0a;
+    letter-spacing: -0.01em; line-height: 1.3;
+    padding: 0 4px 12px;
+    border-bottom: 1px solid #ececec;
+  }
+  .sidebar-title small {
+    display: block; font-weight: 400; color: #999; font-size: 11px;
+    margin-top: 4px; letter-spacing: 0;
+  }
+  .sidebar-section { display: flex; flex-direction: column; gap: 6px; padding: 0 4px; }
+  .sidebar-label {
+    font-size: 10px; font-weight: 700; color: #999;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .chrome-group {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    padding: 3px;
+    background: #f5f5f5;
+    border-radius: 6px;
+  }
   .chrome-btn {
     background: transparent; border: none;
     padding: 5px 9px; font-size: 11px; font-weight: 500;
     color: #555; cursor: pointer; border-radius: 4px;
     transition: background 120ms, color 120ms;
     font-family: inherit;
+    flex: 1 1 auto; min-width: 0;
+    white-space: nowrap;
   }
-  .chrome-btn:hover:not(:disabled) { color: #1a1a1a; }
-  .chrome-btn.active { background: #ffffff; color: #1a1a1a; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .chrome-btn:hover:not(:disabled) { color: #0a0a0a; }
+  .chrome-btn.active { background: #ffffff; color: #0a0a0a; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
   .chrome-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .chrome-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-right: 2px; }
+  .sidebar-spacer { flex: 1; }
 
   .stage {
-    padding: 28px 20px 80px;
-    background: #f5f5f5;
-    min-height: calc(100vh - 56px);
+    flex: 1;
+    padding: 32px;
+    background: #fafafa;
+    min-width: 0;
+  }
+  /* Mobile: fold sidebar to top */
+  @media (max-width: 900px) {
+    .app-shell { flex-direction: column; }
+    .sidebar {
+      width: 100%; height: auto; position: static;
+      border-right: none; border-bottom: 1px solid #ececec;
+      padding: 16px 20px;
+    }
+    .stage { padding: 20px; }
   }
 
   /* ===== COMPARE MODE ===== */
-  .compare-header { max-width: 1400px; margin: 0 auto 20px; padding: 6px 0; }
-  .compare-header h1 { font-size: 20px; font-weight: 600; color: #1a1a1a; letter-spacing: -0.01em; margin-bottom: 4px; }
-  .compare-header p { font-size: 13px; color: #666; }
+  .compare-header { margin-bottom: 24px; padding: 0; }
+  .compare-header h1 { font-size: 22px; font-weight: 700; color: #0a0a0a; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .compare-header p { font-size: 13px; color: #777; max-width: 720px; }
   .compare-grid {
-    max-width: 1400px; margin: 0 auto;
     display: grid; gap: 20px;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   }
@@ -135,15 +174,16 @@
 
   /* ===== FULL MODE ===== */
   .full-frame {
-    max-width: var(--viewport-width, 1280px);
+    width: 100%;
+    max-width: var(--viewport-width, none);
     margin: 0 auto;
     background: var(--c-bg);
     color: var(--c-text);
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
+    border: 1px solid #ececec;
+    border-radius: 10px;
     overflow: hidden;
     transition: max-width 200ms ease;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.04);
   }
   .viewport-tablet  { --viewport-width: 820px; }
   .viewport-mobile  { --viewport-width: 390px; }
@@ -257,8 +297,8 @@
   /* ===== Surface-specific layouts (use surface-* utility classes) ===== */
 
   /* DASHBOARD */
-  .s-dash { display: flex; min-height: 480px; }
-  .s-dash-side { width: 200px; padding: 16px 12px; flex-shrink: 0; }
+  .s-dash { display: flex; min-height: 560px; }
+  .s-dash-side { width: 220px; padding: 18px 12px; flex-shrink: 0; }
   .strategy-border .s-dash-side, .strategy-tinted .s-dash-side {
     background: var(--c-surface);
     border-right: 1px solid var(--c-border);
@@ -271,88 +311,342 @@
     background: transparent;
     border-right: 1px solid var(--c-border);
   }
-  .s-dash-side-title { font-family: var(--f-heading); font-weight: 700; font-size: 14px; color: var(--c-text); margin-bottom: 12px; padding: 0 8px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; }
-  .s-dash-nav { display: flex; flex-direction: column; gap: 2px; }
+  .s-dash-brand {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 8px 16px; margin-bottom: 8px;
+    border-bottom: 1px solid var(--c-border);
+  }
+  .s-dash-brand-dot {
+    width: 22px; height: 22px;
+    border-radius: var(--r-sm);
+    background: var(--c-primary);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 12px;
+    flex-shrink: 0;
+  }
+  .s-dash-brand-name { font-family: var(--f-heading); font-weight: 700; font-size: 14px; color: var(--c-text); letter-spacing: -0.01em; }
+  .s-dash-nav-section { font-size: 10px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; padding: 12px 8px 4px; }
+  .s-dash-nav { display: flex; flex-direction: column; gap: 1px; }
   .s-dash-nav-item { padding: 7px 8px; border-radius: var(--r-sm); font-size: 13px; color: var(--c-text-sec); cursor: pointer; display: flex; align-items: center; gap: 8px; }
   .s-dash-nav-item.active { background: var(--c-primary-subtle); color: var(--c-primary); font-weight: 600; }
-  .s-dash-main { flex: 1; padding: 24px; min-width: 0; }
-  .s-dash-h1 { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
-  .s-dash-sub { font-size: 13px; color: var(--c-text-muted); margin-bottom: 20px; }
-  .s-dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .s-dash-stat { padding: 14px; }
-  .s-dash-stat-label { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-bottom: 6px; }
-  .s-dash-stat-val { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
-  .s-dash-stat-trend { font-size: 11px; color: var(--c-success); margin-top: 2px; }
+  .s-dash-nav-item .badge-mini {
+    margin-left: auto;
+    background: color-mix(in srgb, var(--c-text) 8%, transparent);
+    color: var(--c-text-sec); font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 9999px; min-width: 18px; text-align: center;
+  }
+  .s-dash-nav-item.active .badge-mini { background: var(--c-primary); color: #fff; }
+
+  .s-dash-main { flex: 1; padding: 28px 32px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+  .s-dash-pageHead { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .s-dash-h1 { font-family: var(--f-heading); font-size: 24px; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 4px; }
+  .s-dash-sub { font-size: 13px; color: var(--c-text-muted); }
+  .s-dash-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .s-dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .s-dash-stat {
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 6px;
+    position: relative; overflow: hidden;
+  }
+  .s-dash-stat-label { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .s-dash-stat-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .s-dash-stat-val { font-family: var(--f-heading); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+  .s-dash-stat-trend {
+    font-size: 11px; font-weight: 600;
+    color: var(--c-success);
+    background: color-mix(in srgb, var(--c-success) 10%, transparent);
+    padding: 2px 6px; border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; gap: 2px;
+  }
+  .s-dash-stat-trend.down { color: var(--c-error); background: color-mix(in srgb, var(--c-error) 10%, transparent); }
+  .s-dash-stat-spark { height: 28px; margin-top: 4px; opacity: 0.85; }
+  .s-dash-stat-spark path { fill: none; stroke: var(--c-primary); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .s-dash-stat-spark .spark-area { fill: var(--c-primary-subtle); stroke: none; opacity: 0.6; }
+
   .s-dash-table { overflow: hidden; }
-  .s-dash-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; padding: 11px 14px; align-items: center; font-size: 13px; }
-  .s-dash-row-head { background: color-mix(in srgb, var(--c-text) 4%, transparent); font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .s-dash-row { display: grid; grid-template-columns: 1fr 140px 100px 36px; gap: 12px; padding: 12px 16px; align-items: center; font-size: 13px; transition: background 120ms; }
+  .strategy-border .s-dash-row:hover, .strategy-tinted .s-dash-row:hover, .strategy-elevation .s-dash-row:hover {
+    background: color-mix(in srgb, var(--c-primary) 4%, transparent);
+  }
+  .s-dash-row-head { background: color-mix(in srgb, var(--c-text) 3%, transparent); font-size: 10px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; padding: 9px 16px; }
+  .s-dash-row-head:hover { background: color-mix(in srgb, var(--c-text) 3%, transparent) !important; }
   .strategy-divider .s-dash-row, .strategy-none .s-dash-row { padding-left: 0; padding-right: 0; }
-  .s-dash-badge { font-size: 11px; padding: 2px 7px; border-radius: 9999px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+
+  .s-dash-cell-title { display: flex; align-items: center; gap: 10px; font-weight: 500; min-width: 0; }
+  .s-dash-cell-title .row-icon {
+    width: 28px; height: 28px;
+    border-radius: var(--r-sm);
+    background: color-mix(in srgb, var(--c-primary) 12%, transparent);
+    color: var(--c-primary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .s-dash-cell-title .row-text { min-width: 0; overflow: hidden; }
+  .s-dash-cell-title .row-text strong { display: block; font-weight: 600; color: var(--c-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .s-dash-cell-title .row-text span { display: block; font-size: 11px; color: var(--c-text-muted); margin-top: 1px; }
+
+  .s-dash-cell-owner { display: flex; align-items: center; gap: 8px; color: var(--c-text-sec); }
+  .s-dash-avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 10px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .s-dash-badge { font-size: 11px; padding: 3px 8px; border-radius: 9999px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+  .s-dash-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
   .s-dash-badge-s { background: color-mix(in srgb, var(--c-success) 12%, transparent); color: var(--c-success); }
   .s-dash-badge-w { background: color-mix(in srgb, var(--c-warning) 12%, transparent); color: var(--c-warning); }
   .s-dash-badge-i { background: color-mix(in srgb, var(--c-info) 12%, transparent); color: var(--c-info); }
 
   /* MARKETING */
-  .s-mkt { padding: 56px 32px 64px; min-height: 480px; position: relative; }
-  .s-mkt-eyebrow { font-size: 12px; color: var(--c-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
-  .s-mkt-h1 { font-family: var(--f-heading); font-size: clamp(32px, 5vw, 56px); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 18px; max-width: 720px; }
-  .s-mkt-lead { font-size: 17px; color: var(--c-text-sec); max-width: 580px; margin-bottom: 24px; }
-  .s-mkt-cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 56px; }
-  .s-mkt-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; padding-top: 40px; border-top: 1px solid var(--c-border); }
-  .s-mkt-feat { display: flex; flex-direction: column; gap: 8px; }
-  .s-mkt-feat-icon { color: var(--c-primary); }
-  .s-mkt-feat-h { font-family: var(--f-heading); font-size: 16px; font-weight: 600; }
-  .s-mkt-feat-p { font-size: 14px; color: var(--c-text-sec); }
-  .strategy-none .s-mkt-features, .strategy-divider .s-mkt-features { border-top-color: var(--c-border); }
+  .s-mkt { padding: 72px 40px 72px; min-height: 580px; position: relative; overflow: hidden; }
+  .s-mkt-hero { position: relative; max-width: 920px; margin: 0 auto 80px; }
+  .s-mkt-eyebrow {
+    font-size: 12px; color: var(--c-primary); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 16px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 9999px;
+    background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  }
+  .s-mkt-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--c-primary); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .s-mkt-h1 {
+    font-family: var(--f-heading);
+    font-size: clamp(36px, 5.2vw, 64px);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin-bottom: 22px;
+    max-width: 820px;
+  }
+  .s-mkt-lead {
+    font-size: 18px; line-height: 1.5;
+    color: var(--c-text-sec);
+    max-width: 600px;
+    margin-bottom: 32px;
+  }
+  .s-mkt-cta-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .s-mkt-cta-meta { font-size: 13px; color: var(--c-text-muted); display: inline-flex; align-items: center; gap: 6px; }
+  .s-mkt-cta-meta::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--c-text-muted); }
+  .s-mkt-trust {
+    display: flex; gap: 32px; align-items: center;
+    padding: 20px 0; margin-bottom: 64px;
+    border-top: 1px solid var(--c-border);
+    border-bottom: 1px solid var(--c-border);
+    overflow: hidden; flex-wrap: wrap;
+  }
+  .s-mkt-trust-label { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .s-mkt-trust-logos { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+  .s-mkt-trust-logo { font-family: var(--f-heading); font-weight: 700; font-size: 16px; color: var(--c-text-muted); opacity: 0.6; letter-spacing: -0.01em; }
+  .s-mkt-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px; max-width: 1100px; margin: 0 auto; }
+  .s-mkt-feat { display: flex; flex-direction: column; gap: 10px; }
+  .s-mkt-feat-icon {
+    color: var(--c-primary);
+    width: 40px; height: 40px;
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 4px;
+  }
+  .s-mkt-feat-h { font-family: var(--f-heading); font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+  .s-mkt-feat-p { font-size: 14px; line-height: 1.5; color: var(--c-text-sec); }
+  .s-mkt-feat-link { font-size: 13px; font-weight: 600; color: var(--c-primary); display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; }
 
   /* CONTENT */
-  .s-art { padding: 48px 32px 64px; max-width: 720px; margin: 0 auto; min-height: 480px; }
-  .s-art-meta { font-size: 12px; color: var(--c-text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
-  .s-art-h1 { font-family: var(--f-heading); font-size: clamp(28px, 4vw, 40px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 20px; }
-  .s-art p { font-size: 17px; line-height: var(--body-line-height, 1.65); color: var(--c-text); margin-bottom: 18px; }
-  .s-art-pull { border-left: 3px solid var(--c-primary); padding-left: 20px; margin: 28px 0; font-family: var(--f-heading); font-size: 22px; font-weight: 600; line-height: 1.35; color: var(--c-text); }
-  .s-art-figure { padding: 24px; margin: 28px 0; font-size: 13px; color: var(--c-text-muted); text-align: center; }
+  .s-art { padding: 64px 40px 80px; max-width: 720px; margin: 0 auto; min-height: 560px; }
+  .s-art-meta {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 12px; color: var(--c-text-muted);
+    margin-bottom: 18px;
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+  }
+  .s-art-meta-tag { background: color-mix(in srgb, var(--c-primary) 10%, transparent); color: var(--c-primary); padding: 3px 8px; border-radius: 9999px; }
+  .s-art-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--c-text-muted); }
+  .s-art-h1 {
+    font-family: var(--f-heading);
+    font-size: clamp(32px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .s-art-deck {
+    font-size: 19px; line-height: 1.45;
+    color: var(--c-text-sec);
+    margin-bottom: 36px;
+    font-family: var(--f-heading);
+    font-weight: 400;
+  }
+  .s-art-author {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 28px; margin-bottom: 36px;
+    border-bottom: 1px solid var(--c-border);
+  }
+  .s-art-author .s-dash-avatar { width: 36px; height: 36px; font-size: 13px; }
+  .s-art-author-info strong { display: block; font-weight: 600; font-size: 14px; }
+  .s-art-author-info span { display: block; font-size: 12px; color: var(--c-text-muted); margin-top: 1px; }
+  .s-art p { font-size: 17px; line-height: var(--body-line-height, 1.7); color: var(--c-text); margin-bottom: 22px; }
+  .s-art p strong { font-weight: 700; }
+  .s-art p em { background: color-mix(in srgb, var(--c-primary) 14%, transparent); color: var(--c-text); font-style: normal; padding: 1px 4px; border-radius: 3px; }
+  .s-art-pull {
+    border-left: 3px solid var(--c-primary);
+    padding: 4px 0 4px 24px; margin: 32px 0;
+    font-family: var(--f-heading);
+    font-size: 22px; font-weight: 600;
+    line-height: 1.35; color: var(--c-text);
+    letter-spacing: -0.005em;
+  }
+  .s-art-figure {
+    padding: 32px 24px;
+    margin: 32px 0;
+    text-align: center;
+    background: color-mix(in srgb, var(--c-text) 3%, transparent);
+    border-radius: var(--r-md);
+  }
+  .s-art-figure-icon { color: var(--c-primary); margin-bottom: 12px; opacity: 0.8; }
+  .s-art-figure-cap { font-size: 12px; color: var(--c-text-muted); font-style: italic; }
 
   /* FORM */
-  .s-form { padding: 32px 32px 48px; max-width: 640px; margin: 0 auto; min-height: 480px; }
-  .s-form-h1 { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
-  .s-form-sub { font-size: 13px; color: var(--c-text-muted); margin-bottom: 24px; }
-  .s-form-group { margin-bottom: 20px; }
+  .s-form { padding: 36px 40px 48px; max-width: 680px; margin: 0 auto; min-height: 560px; }
+  .s-form-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; gap: 16px; }
+  .s-form-head-text { min-width: 0; }
+  .s-form-h1 { font-family: var(--f-heading); font-size: 24px; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 6px; }
+  .s-form-sub { font-size: 13px; color: var(--c-text-muted); }
+  .s-form-section {
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .s-form-section-title {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--f-heading);
+    font-size: 13px; font-weight: 700;
+    color: var(--c-text);
+    margin-bottom: 16px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .s-form-section-title-icon { color: var(--c-primary); }
+  .s-form-group { margin-bottom: 16px; }
+  .s-form-group:last-child { margin-bottom: 0; }
   .s-form-label { display: block; font-size: 13px; font-weight: 600; color: var(--c-text); margin-bottom: 6px; }
-  .s-form-help { font-size: 12px; color: var(--c-text-muted); margin-top: 4px; }
+  .s-form-label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .s-form-label-row .s-form-label { margin-bottom: 0; }
+  .s-form-required { color: var(--c-error); font-size: 11px; font-weight: 600; }
+  .s-form-help { font-size: 12px; color: var(--c-text-muted); margin-top: 6px; line-height: 1.5; }
+  .s-form-input-wrap { position: relative; }
+  .s-form-input-icon {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    color: var(--c-text-muted); pointer-events: none;
+  }
   .s-form-input, .s-form-select, .s-form-textarea {
     width: 100%; background: var(--c-bg); color: var(--c-text);
     border: 1px solid var(--c-border); border-radius: var(--r-sm);
-    padding: 8px 12px; font-size: 14px; font-family: inherit;
+    padding: 9px 12px; font-size: 14px; font-family: inherit;
     outline: none; transition: border-color 120ms, box-shadow 120ms;
   }
+  .s-form-input.has-icon { padding-left: 36px; }
   .s-form-input:focus, .s-form-select:focus, .s-form-textarea:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px var(--c-primary-subtle); }
-  .s-form-textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+  .s-form-textarea { min-height: 88px; resize: vertical; line-height: 1.5; }
   .s-form-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-top: 1px solid var(--c-border); }
-  .s-form-toggle-row:last-of-type { border-bottom: 1px solid var(--c-border); margin-bottom: 24px; }
-  .s-form-toggle-info strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-  .s-form-toggle-info span { font-size: 12px; color: var(--c-text-muted); }
-  .s-form-actions { display: flex; gap: 10px; padding-top: 16px; }
+  .s-form-toggle-row:first-of-type { border-top: none; padding-top: 0; }
+  .s-form-toggle-info strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .s-form-toggle-info span { font-size: 12px; color: var(--c-text-muted); line-height: 1.5; }
+  .s-form-toggle {
+    width: 36px; height: 20px;
+    background: color-mix(in srgb, var(--c-text) 18%, transparent);
+    border-radius: 9999px;
+    position: relative; cursor: pointer; transition: background 120ms;
+    flex-shrink: 0;
+  }
+  .s-form-toggle::after {
+    content: ''; position: absolute;
+    top: 2px; left: 2px; width: 16px; height: 16px;
+    border-radius: 50%; background: #fff;
+    transition: transform 120ms;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  .s-form-toggle.on { background: var(--c-primary); }
+  .s-form-toggle.on::after { transform: translateX(16px); }
+  .s-form-actions {
+    display: flex; gap: 10px; padding-top: 24px;
+    border-top: 1px solid var(--c-border);
+    margin-top: 24px;
+    align-items: center;
+  }
+  .s-form-actions .keyboard-hint {
+    margin-left: auto;
+    font-size: 11px; color: var(--c-text-muted);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .s-form-actions .keyboard-hint kbd {
+    background: color-mix(in srgb, var(--c-text) 8%, transparent);
+    color: var(--c-text-sec);
+    padding: 2px 6px; border-radius: 3px;
+    font-family: var(--f-mono, ui-monospace, monospace);
+    font-size: 10px; font-weight: 600;
+    border: 1px solid var(--c-border);
+    border-bottom-width: 2px;
+  }
 
   /* PRICING */
-  .s-price { padding: 48px 32px 56px; min-height: 480px; }
-  .s-price-h1 { font-family: var(--f-heading); font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.02em; text-align: center; margin-bottom: 8px; }
-  .s-price-sub { font-size: 15px; color: var(--c-text-sec); text-align: center; max-width: 520px; margin: 0 auto 36px; }
-  .s-price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; max-width: 960px; margin: 0 auto; }
-  .s-price-card { padding: 24px; display: flex; flex-direction: column; gap: 16px; position: relative; }
-  .s-price-card.featured { outline: 2px solid var(--c-primary); }
-  .s-price-card.featured::before {
-    content: attr(data-popular); position: absolute; top: -10px; left: 24px;
-    background: var(--c-primary); color: #fff;
-    font-size: 10px; font-weight: 700; padding: 3px 8px;
-    border-radius: var(--r-sm); letter-spacing: 0.04em; text-transform: uppercase;
+  .s-price { padding: 64px 32px 64px; min-height: 580px; }
+  .s-price-head { text-align: center; max-width: 600px; margin: 0 auto 36px; }
+  .s-price-h1 { font-family: var(--f-heading); font-size: clamp(32px, 4vw, 44px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px; }
+  .s-price-sub { font-size: 16px; color: var(--c-text-sec); line-height: 1.5; }
+  .s-price-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px;
+    background: color-mix(in srgb, var(--c-text) 5%, transparent);
+    border-radius: 9999px;
+    margin: 24px auto 40px;
+    text-align: center;
   }
-  .s-price-tier { font-family: var(--f-heading); font-size: 14px; font-weight: 600; color: var(--c-text-sec); }
-  .s-price-amount { font-family: var(--f-heading); font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
-  .s-price-amount span { font-size: 13px; color: var(--c-text-muted); font-weight: 400; margin-left: 2px; }
-  .s-price-list { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-top: 1px solid var(--c-border); }
-  .s-price-list li { font-size: 13px; color: var(--c-text-sec); padding-left: 24px; position: relative; }
-  .s-price-list li svg { position: absolute; left: 0; top: 1px; color: var(--c-primary); }
+  .s-price-toggle-wrap { text-align: center; }
+  .s-price-toggle button {
+    background: transparent; border: none;
+    padding: 7px 16px; font-size: 13px; font-weight: 600;
+    color: var(--c-text-sec); cursor: pointer;
+    border-radius: 9999px;
+    font-family: inherit;
+    transition: background 120ms, color 120ms;
+  }
+  .s-price-toggle button.active { background: var(--c-bg); color: var(--c-text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .s-price-toggle .price-save {
+    font-size: 10px; color: var(--c-success); font-weight: 700;
+    margin-left: 4px;
+    background: color-mix(in srgb, var(--c-success) 12%, transparent);
+    padding: 1px 6px; border-radius: 9999px;
+  }
+  .s-price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; max-width: 1000px; margin: 0 auto; }
+  .s-price-card { padding: 28px 24px; display: flex; flex-direction: column; gap: 16px; position: relative; }
+  .s-price-card.featured {
+    outline: 2px solid var(--c-primary);
+    transform: translateY(-4px);
+  }
+  .s-price-card.featured::before {
+    content: attr(data-popular); position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    background: var(--c-primary); color: #fff;
+    font-size: 10px; font-weight: 700; padding: 4px 10px;
+    border-radius: 9999px; letter-spacing: 0.04em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .s-price-tier { font-family: var(--f-heading); font-size: 13px; font-weight: 700; color: var(--c-text-sec); text-transform: uppercase; letter-spacing: 0.06em; }
+  .s-price-tier-desc { font-size: 12px; color: var(--c-text-muted); margin-top: 2px; }
+  .s-price-amount { font-family: var(--f-heading); font-size: 36px; font-weight: 800; letter-spacing: -0.025em; line-height: 1; }
+  .s-price-amount span { font-size: 13px; color: var(--c-text-muted); font-weight: 400; margin-left: 4px; letter-spacing: 0; }
+  .s-price-list {
+    list-style: none; display: flex; flex-direction: column; gap: 10px;
+    padding: 16px 0; border-top: 1px solid var(--c-border);
+    flex: 1;
+  }
+  .s-price-list li { font-size: 13px; color: var(--c-text-sec); padding-left: 26px; position: relative; line-height: 1.5; }
+  .s-price-list li svg { position: absolute; left: 0; top: 2px; color: var(--c-primary); }
+  .s-price-list li.muted { color: var(--c-text-muted); }
+  .s-price-list li.muted svg { color: var(--c-text-muted); }
 
   /* shared atoms */
   .b-primary, .b-secondary, .b-ghost {
@@ -451,16 +745,17 @@
   .action-bar-copy:hover { background: #f0f0f0; }
   .action-bar-copy.copied { background: #16a34a; color: #fff; }
 
-  /* ===== Full mode: Copy config button (in chrome) ===== */
+  /* ===== Full mode: Copy config button (in sidebar bottom) ===== */
   .chrome-copy {
-    background: #1a1a1a; color: #fff;
+    width: 100%;
+    background: #0a0a0a; color: #fff;
     border: none; border-radius: 6px;
-    padding: 6px 12px; font-size: 11px; font-weight: 600;
+    padding: 10px 14px; font-size: 12px; font-weight: 600;
     cursor: pointer; font-family: inherit;
     transition: background 120ms;
-    white-space: nowrap;
+    margin-top: 4px;
   }
-  .chrome-copy:hover { background: #333; }
+  .chrome-copy:hover { background: #2a2a2a; }
   .chrome-copy.copied { background: #16a34a; }
 </style>
 </head>
@@ -652,158 +947,236 @@
   const COPY = {
     'en': {
       brand:     'Acme',
-      nav:       { overview:'Overview', projects:'Projects', team:'Team', billing:'Billing', settings:'Settings' },
+      brandInitial: 'A',
+      nav: [
+        { section: 'Workspace', items: [
+          { id:'overview',  label:'Overview' },
+          { id:'projects',  label:'Projects', badge:'12' },
+          { id:'team',      label:'Team' }
+        ]},
+        { section: 'Account', items: [
+          { id:'billing',   label:'Billing' },
+          { id:'settings',  label:'Settings' }
+        ]}
+      ],
       dashTitle: 'Overview',
-      dashSub:   'A look at how the project is performing this week.',
+      dashSub:   'How the project is performing this week.',
+      dashAction:'New project',
       stats:     [
-        {label:'Active users', val:'2,847', trend:'+12.5%'},
-        {label:'Revenue',      val:'$48.2k', trend:'+8.1%'},
-        {label:'Conversion',   val:'3.4%',   trend:'+0.6%'}
+        {label:'Active users', val:'2,847',  trend:'+12.5%', spark:[8,12,11,15,18,17,21,24]},
+        {label:'Revenue',      val:'$48.2k', trend:'+8.1%',  spark:[20,18,22,21,25,24,28,30]},
+        {label:'Conversion',   val:'3.4%',   trend:'+0.6%',  spark:[2,3,3,2,4,3,4,4]},
+        {label:'Avg session',  val:'4m 32s', trend:'-2.1%', trendDown:true, spark:[12,14,11,13,10,11,9,10]}
       ],
       tableHead: ['Project','Owner','Status',''],
       tableRows: [
-        {project:'Design system audit',  owner:'Sarah',  state:'active',  badge:'Active'},
-        {project:'API integration v2',   owner:'Marcus', state:'pending', badge:'Pending'},
-        {project:'Mobile responsive pass', owner:'Jia',  state:'draft',   badge:'Draft'}
+        {project:'Design system audit',  desc:'Refresh tokens for v3 release',  owner:'Sarah Chen',  state:'active',  badge:'Active',  rowIcon:'projects'},
+        {project:'API integration v2',   desc:'Migrate to streaming endpoints', owner:'Marcus Yi',   state:'pending', badge:'Pending', rowIcon:'bolt'},
+        {project:'Mobile responsive pass', desc:'Audit forms on viewport <600', owner:'Jia Lin',     state:'draft',   badge:'Draft',   rowIcon:'keyboard'}
       ],
-      mktEyebrow: 'Acme · For modern teams',
+      mktEyebrow: 'New · v3 is here',
       mktH1:      'Ship faster without losing the thread.',
       mktLead:    'A single workspace for the messy middle of building software — issues, decisions, and the changelog, kept in one place.',
       mktCtaA:    'Start free',
       mktCtaB:    'Read the changelog',
+      mktCtaMeta: 'No credit card · 14-day trial',
+      mktTrustLabel: 'Trusted by teams at',
+      mktTrustLogos: ['Northwind','Crescent','Helix','Marigold','Ember'],
       features: [
-        {icon:'shield',   h:'One source of truth', p:'Issues, docs, and decisions live next to the code, searchable from one bar.'},
-        {icon:'keyboard', h:'Built for keyboards', p:'Every action has a shortcut. The mouse is optional.'},
-        {icon:'bolt',     h:'Audit-friendly history', p:'Every change is signed, attributed, and reversible.'}
+        {icon:'shield',   h:'One source of truth', p:'Issues, docs, and decisions live next to the code, searchable from one bar.', link:'See how it works'},
+        {icon:'keyboard', h:'Built for keyboards', p:'Every action has a shortcut. The mouse is optional.', link:'View shortcuts'},
+        {icon:'bolt',     h:'Audit-friendly history', p:'Every change is signed, attributed, and reversible at any point in time.', link:'Read more'}
       ],
-      artMeta:    'Design · 8 min read · 18 Apr 2026',
+      artTag:     'Design',
+      artMeta:    '8 min read · 18 Apr 2026',
       artH1:      'A design system that survives its first year',
-      artP1:      'Most design systems collapse the moment a real product hits them. The reason is rarely the tokens themselves — it\'s that the system was specified in <strong>terms of components</strong>, not in terms of decisions.',
+      artDeck:    'The reason most teams\' design systems collapse isn\'t the tokens. It\'s that they documented components instead of decisions.',
+      artAuthor:  'Sarah Chen',
+      artAuthorTitle: 'Lead designer · Acme',
+      artP1:      'Most design systems collapse the moment a real product hits them. The reason is rarely the tokens themselves — it\'s that the system was specified in <strong>terms of components</strong>, not in terms of <em>decisions</em>.',
       artP2:      'What you actually want is a record of every choice the team has already made, so the next contributor can either reuse it or argue with it. That\'s it.',
       artPull:    'A design system is not a component library. It is the documentation of every taste decision your team has made — and is willing to defend.',
       artP3:      'The implication: the spec must be opinionated and contain reasoning. "Buttons are 8px radius" is not a spec; it\'s a hex code. "Buttons are 8px radius because we picked balance over softness" is a spec — and the next person can disagree explicitly.',
-      artFig:     '[ figure: token decision diagram ]',
+      artFigCap:  'Figure 1 · Token decisions cascade through every component',
       formH1:     'Workspace settings',
       formSub:    'Changes apply to everyone in this workspace.',
+      formSection1: 'General',
+      formSection2: 'Security',
       formNameL:  'Workspace name',     formNameV:  'Acme',
       formSlugL:  'URL slug',           formSlugV:  'acme',
-      formSlugH:  'Lowercase letters, numbers, and dashes only.',
+      formSlugH:  'Lowercase letters, numbers, and dashes only. Will be visible at acme.app/[slug].',
       formContactL:'Primary contact',
       formContactO:['sarah@acme.co','marcus@acme.co'],
       formDescL:  'Description',         formDescV:  'A workspace for our design system experiments.',
-      togglePub:  {h:'Public discoverability', s:'Allow anyone with the URL to view your public pages.', state:'Off'},
-      toggle2fa:  {h:'Two-factor for everyone', s:'Require all members to enable 2FA before they can sign in.', state:'On'},
+      formRequired: 'Required',
+      togglePub:  {h:'Public discoverability', s:'Allow anyone with the URL to view your public pages.', on:false},
+      toggle2fa:  {h:'Two-factor for everyone', s:'Require all members to enable 2FA before they can sign in.', on:true},
       formSave:   'Save changes',        formCancel: 'Cancel',
+      formKbHint: 'to save',
       priceH1:    'Pricing that grows with the team',
-      priceSub:   'Start free. Add seats only when you need them.',
+      priceSub:   'Start free. Add seats only when you need them. Switch plans anytime.',
+      pricingMonthly: 'Monthly', pricingYearly: 'Yearly',
+      pricingSave: 'Save 20%',
       tiers: [
-        {name:'Starter',    price:'Free',    unit:'',                feats:['Up to 3 seats','Unlimited projects','Community support'], cta:'Get started'},
-        {name:'Team',       price:'$12',     unit:'/seat / month',   feats:['Unlimited seats','SSO and audit log','Priority support','API access'], cta:'Start trial', popular:true, popularLabel:'Most popular'},
-        {name:'Enterprise', price:'Custom',  unit:'',                feats:['Custom contracts','Dedicated infrastructure','Service-level agreement'], cta:'Contact sales'}
+        {name:'Starter',    desc:'For solo and small teams', price:'Free',    unit:'forever',          feats:[{t:'Up to 3 seats'},{t:'Unlimited projects'},{t:'Community support'},{t:'API access', muted:true}], cta:'Get started'},
+        {name:'Team',       desc:'For growing teams',        price:'$12',     unit:'/ seat / month',   feats:[{t:'Unlimited seats'},{t:'SSO and audit log'},{t:'Priority support'},{t:'API access'},{t:'Custom integrations'}], cta:'Start trial', popular:true, popularLabel:'Most popular'},
+        {name:'Enterprise', desc:'For large organizations',  price:'Custom',  unit:'contact us',       feats:[{t:'Everything in Team'},{t:'Custom contracts'},{t:'Dedicated infrastructure'},{t:'24/7 service-level agreement'}], cta:'Contact sales'}
       ]
     },
     'zh-CN': {
       brand:     '广源科技',
-      nav:       { overview:'概览', projects:'项目', team:'团队', billing:'账单', settings:'设置' },
+      brandInitial: '广',
+      nav: [
+        { section: '工作空间', items: [
+          { id:'overview',  label:'概览' },
+          { id:'projects',  label:'项目', badge:'12' },
+          { id:'team',      label:'团队' }
+        ]},
+        { section: '账户', items: [
+          { id:'billing',   label:'账单' },
+          { id:'settings',  label:'设置' }
+        ]}
+      ],
       dashTitle: '概览',
       dashSub:   '本周项目运行情况速览。',
+      dashAction:'新建项目',
       stats:     [
-        {label:'活跃用户', val:'2,847',   trend:'+12.5%'},
-        {label:'营收',     val:'¥35.6万', trend:'+8.1%'},
-        {label:'转化率',   val:'3.4%',    trend:'+0.6%'}
+        {label:'活跃用户', val:'2,847',   trend:'+12.5%', spark:[8,12,11,15,18,17,21,24]},
+        {label:'营收',     val:'¥35.6万', trend:'+8.1%',  spark:[20,18,22,21,25,24,28,30]},
+        {label:'转化率',   val:'3.4%',    trend:'+0.6%',  spark:[2,3,3,2,4,3,4,4]},
+        {label:'平均时长', val:'4分32秒', trend:'-2.1%', trendDown:true, spark:[12,14,11,13,10,11,9,10]}
       ],
-      tableHead: ['项目名称','负责人','状态',''],
+      tableHead: ['项目','负责人','状态',''],
       tableRows: [
-        {project:'设计规范升级',     owner:'王晓',   state:'active',  badge:'进行中'},
-        {project:'API 接入第二期',   owner:'李子轩', state:'pending', badge:'待处理'},
-        {project:'移动端适配回归',   owner:'陈嘉',   state:'draft',   badge:'草稿'}
+        {project:'设计规范升级',     desc:'为 v3 版本刷新 token 体系',  owner:'王晓晗',   state:'active',  badge:'进行中', rowIcon:'projects'},
+        {project:'API 接入第二期',   desc:'切换到流式接口',             owner:'李子轩',   state:'pending', badge:'待处理', rowIcon:'bolt'},
+        {project:'移动端适配回归',   desc:'审查 600px 以下视口的表单',  owner:'陈嘉',     state:'draft',   badge:'草稿',   rowIcon:'keyboard'}
       ],
-      mktEyebrow: '广源科技 · 为现代团队而生',
+      mktEyebrow: '上新 · v3 已发布',
       mktH1:      '更快交付，思路不丢失。',
       mktLead:    '一个工作空间，承载软件开发过程中所有混沌中段——问题、决策与变更记录，统一可查。',
       mktCtaA:    '免费开始',
       mktCtaB:    '阅读更新日志',
+      mktCtaMeta: '无需信用卡 · 14 天试用',
+      mktTrustLabel: '正在被这些团队使用',
+      mktTrustLogos: ['北望科技','弦月','螺旋实验室','金盏花','余烬'],
       features: [
-        {icon:'shield',   h:'唯一信息源', p:'问题、文档、决策与代码并行存在，单一搜索栏即可定位。'},
-        {icon:'keyboard', h:'键盘优先',   p:'每个操作都有快捷键，鼠标只是可选项。'},
-        {icon:'bolt',     h:'可审计历史', p:'每次变更都有签名、归属、可回滚。'}
+        {icon:'shield',   h:'唯一信息源', p:'问题、文档、决策与代码并行存在，单一搜索栏即可定位。', link:'查看演示'},
+        {icon:'keyboard', h:'键盘优先',   p:'每个操作都有快捷键，鼠标只是可选项。', link:'查看快捷键列表'},
+        {icon:'bolt',     h:'可审计历史', p:'每次变更都有签名、归属、可回滚到任何时间点。', link:'阅读详情'}
       ],
-      artMeta:    '设计 · 阅读 8 分钟 · 2026.04.18',
+      artTag:     '设计',
+      artMeta:    '阅读 8 分钟 · 2026.04.18',
       artH1:      '一套能撑过第一年的设计系统',
-      artP1:      '大多数设计系统在真实产品压力下就会崩。原因往往不是 token 本身，而是这个系统被定义成了<strong>组件清单</strong>，而不是被定义成一系列决策。',
+      artDeck:    '大多数设计系统崩溃，原因不是 token，而是它们记录的是组件，而不是决策。',
+      artAuthor:  '王晓晗',
+      artAuthorTitle: '首席设计师 · 广源科技',
+      artP1:      '大多数设计系统在真实产品压力下就会崩。原因往往不是 token 本身，而是这个系统被定义成了<strong>组件清单</strong>，而不是被定义成一系列<em>决策</em>。',
       artP2:      '你真正想要的是一份记录——团队过去每一个口味判断的记录，让下一个加入的人可以选择沿用或重新讨论。仅此而已。',
       artPull:    '设计系统不是组件库。它是团队所做过的每一个口味决策的文档——并且团队愿意为它辩护。',
       artP3:      '推论是：规范必须有立场，必须包含推理。"按钮圆角 8px" 不是规范，那只是一个数值。"按钮圆角 8px 是因为我们在均衡和柔和之间选了均衡" 才是规范——并且下一个人可以明确地反对它。',
-      artFig:     '[ 配图：token 决策路径图 ]',
+      artFigCap:  '图 1 · 一个 token 的决策会向下级联到所有组件',
       formH1:     '工作空间设置',
       formSub:    '改动会影响整个工作空间的所有成员。',
+      formSection1: '基本信息',
+      formSection2: '安全',
       formNameL:  '工作空间名称',  formNameV:  '广源科技',
       formSlugL:  'URL 标识',      formSlugV:  'guangyuan',
-      formSlugH:  '只能使用小写字母、数字和连字符。',
+      formSlugH:  '只能使用小写字母、数字和连字符。最终展示为 acme.app/[标识]。',
       formContactL:'主联系人',
-      formContactO:['wangxiao@guangyuan.cn','lizixuan@guangyuan.cn'],
+      formContactO:['wangxiaohan@guangyuan.cn','lizixuan@guangyuan.cn'],
       formDescL:  '简介',          formDescV:  '我们用于设计系统实验的工作空间。',
-      togglePub:  {h:'公开可见',           s:'允许任何拿到 URL 的人查看公开页面。', state:'关闭'},
-      toggle2fa:  {h:'强制双因素认证',     s:'所有成员登录前必须启用二次验证。',   state:'开启'},
+      formRequired: '必填',
+      togglePub:  {h:'公开可见',           s:'允许任何拿到 URL 的人查看公开页面。', on:false},
+      toggle2fa:  {h:'强制双因素认证',     s:'所有成员登录前必须启用二次验证。',   on:true},
       formSave:   '保存修改',      formCancel: '取消',
+      formKbHint: '保存',
       priceH1:    '随团队成长的定价方案',
-      priceSub:   '免费起步，按需添加席位。',
+      priceSub:   '免费起步，按需添加席位。可随时切换方案。',
+      pricingMonthly: '按月', pricingYearly: '按年',
+      pricingSave: '省 20%',
       tiers: [
-        {name:'起步版',  price:'免费',    unit:'',           feats:['最多 3 个席位','不限项目数','社区支持'], cta:'立即开始'},
-        {name:'团队版',  price:'¥88',     unit:'/席位/月',   feats:['不限席位','单点登录与审计日志','优先客服','API 访问'], cta:'开始试用', popular:true, popularLabel:'最受欢迎'},
-        {name:'企业版',  price:'定制',    unit:'',           feats:['定制合同','独立部署环境','服务等级协议'], cta:'联系销售'}
+        {name:'起步版',  desc:'适合个人与小团队', price:'免费',    unit:'永久免费',     feats:[{t:'最多 3 个席位'},{t:'不限项目数'},{t:'社区支持'},{t:'API 访问', muted:true}], cta:'立即开始'},
+        {name:'团队版',  desc:'适合成长中的团队', price:'¥88',     unit:'/ 席位 / 月',  feats:[{t:'不限席位'},{t:'单点登录与审计日志'},{t:'优先客服'},{t:'API 访问'},{t:'自定义集成'}], cta:'开始试用', popular:true, popularLabel:'最受欢迎'},
+        {name:'企业版',  desc:'适合大型组织',     price:'定制',    unit:'联系我们',     feats:[{t:'团队版的全部功能'},{t:'定制合同'},{t:'独立部署环境'},{t:'7×24 服务等级协议'}], cta:'联系销售'}
       ]
     },
     'ja': {
       brand:     'アクメ',
-      nav:       { overview:'概要', projects:'プロジェクト', team:'チーム', billing:'請求', settings:'設定' },
+      brandInitial: 'ア',
+      nav: [
+        { section: 'ワークスペース', items: [
+          { id:'overview',  label:'概要' },
+          { id:'projects',  label:'プロジェクト', badge:'12' },
+          { id:'team',      label:'チーム' }
+        ]},
+        { section: 'アカウント', items: [
+          { id:'billing',   label:'請求' },
+          { id:'settings',  label:'設定' }
+        ]}
+      ],
       dashTitle: '概要',
       dashSub:   '今週のプロジェクトの状況です。',
+      dashAction:'新規プロジェクト',
       stats:     [
-        {label:'アクティブユーザー', val:'2,847',  trend:'+12.5%'},
-        {label:'売上',               val:'¥4.82M', trend:'+8.1%'},
-        {label:'コンバージョン率',   val:'3.4%',   trend:'+0.6%'}
+        {label:'アクティブユーザー', val:'2,847',  trend:'+12.5%', spark:[8,12,11,15,18,17,21,24]},
+        {label:'売上',               val:'¥4.82M', trend:'+8.1%',  spark:[20,18,22,21,25,24,28,30]},
+        {label:'CVR',                val:'3.4%',   trend:'+0.6%',  spark:[2,3,3,2,4,3,4,4]},
+        {label:'平均滞在',           val:'4分32秒',trend:'-2.1%', trendDown:true, spark:[12,14,11,13,10,11,9,10]}
       ],
       tableHead: ['プロジェクト','担当','ステータス',''],
       tableRows: [
-        {project:'デザインシステム監査', owner:'佐藤', state:'active',  badge:'進行中'},
-        {project:'API連携 v2',           owner:'田中', state:'pending', badge:'保留'},
-        {project:'モバイル対応',         owner:'山田', state:'draft',   badge:'下書き'}
+        {project:'デザインシステム監査', desc:'v3 リリースに向け token を更新',  owner:'佐藤 美咲', state:'active',  badge:'進行中', rowIcon:'projects'},
+        {project:'API連携 v2',           desc:'ストリーミング API へ移行',        owner:'田中 太郎', state:'pending', badge:'保留',   rowIcon:'bolt'},
+        {project:'モバイル対応',         desc:'600px 以下のフォーム監査',         owner:'山田 花子', state:'draft',   badge:'下書き', rowIcon:'keyboard'}
       ],
-      mktEyebrow: 'アクメ · 現代のチームのために',
+      mktEyebrow: '新登場 · v3 公開',
       mktH1:      '速く出荷し、文脈を失わない。',
       mktLead:    'ソフトウェア開発の煩雑な中間地帯を一つのワークスペースに——課題・意思決定・変更履歴を一か所で管理。',
       mktCtaA:    '無料で始める',
       mktCtaB:    '更新履歴を見る',
+      mktCtaMeta: 'クレカ不要 · 14 日間トライアル',
+      mktTrustLabel: 'こちらのチームに使われています',
+      mktTrustLogos: ['北星','三日月','螺旋研','金盞花','残光'],
       features: [
-        {icon:'shield',   h:'唯一の情報源', p:'課題・ドキュメント・意思決定をコードの隣に置き、ひとつのバーで検索可能。'},
-        {icon:'keyboard', h:'キーボード設計', p:'すべての操作にショートカット。マウスは任意。'},
-        {icon:'bolt',     h:'監査可能な履歴', p:'変更には署名・帰属・取り消し可能性が常に紐づく。'}
+        {icon:'shield',   h:'唯一の情報源', p:'課題・ドキュメント・意思決定をコードの隣に置き、ひとつのバーで検索可能。', link:'仕組みを見る'},
+        {icon:'keyboard', h:'キーボード設計', p:'すべての操作にショートカット。マウスは任意。', link:'ショートカット一覧'},
+        {icon:'bolt',     h:'監査可能な履歴', p:'変更には署名・帰属・取り消し可能性が常に紐づく。', link:'詳しく読む'}
       ],
-      artMeta:    'デザイン · 読了 8 分 · 2026年4月18日',
+      artTag:     'デザイン',
+      artMeta:    '読了 8 分 · 2026年4月18日',
       artH1:      '初年度を生き延びるデザインシステム',
-      artP1:      '多くのデザインシステムは実プロダクトに当たった瞬間に崩壊します。原因は token 自体ではなく、システムを<strong>コンポーネントの集合</strong>として定義したことにあります。',
+      artDeck:    '多くのデザインシステムが崩壊するのは token のせいではなく、コンポーネントを記録して意思決定を記録しなかったからです。',
+      artAuthor:  '佐藤 美咲',
+      artAuthorTitle: 'リードデザイナー · アクメ',
+      artP1:      '多くのデザインシステムは実プロダクトに当たった瞬間に崩壊します。原因は token 自体ではなく、システムを<strong>コンポーネントの集合</strong>として定義し、<em>意思決定の記録</em>を残さなかったことにあります。',
       artP2:      '本当に欲しいのは、チームが下したすべての判断の記録です。次に来る人がそれを再利用するか、明示的に再議論できるようにするためです。',
       artPull:    'デザインシステムはコンポーネントライブラリではない。チームが下した一つひとつの趣味判断の文書化であり、チームが守る価値があると考えるものだ。',
       artP3:      '結果として、仕様は意見を持ち、理由を含むべきです。「ボタンの角丸は 8px」は仕様ではありません。「柔らかさよりバランスを選んだので 8px」が仕様であり、次の人が明示的に異論を唱えられます。',
-      artFig:     '[ 図: token の意思決定図 ]',
+      artFigCap:  '図 1 · 一つの token がすべてのコンポーネントに波及する',
       formH1:     'ワークスペース設定',
       formSub:    '変更はワークスペースの全メンバーに適用されます。',
+      formSection1: '基本情報',
+      formSection2: 'セキュリティ',
       formNameL:  'ワークスペース名',   formNameV:  'アクメ',
       formSlugL:  'URL スラッグ',       formSlugV:  'acme',
-      formSlugH:  '小文字・数字・ハイフンのみ。',
+      formSlugH:  '小文字・数字・ハイフンのみ。acme.app/[スラッグ] として表示されます。',
       formContactL:'主連絡先',
       formContactO:['sato@acme.jp','tanaka@acme.jp'],
       formDescL:  '説明',                 formDescV:  'デザインシステムを試行するワークスペース。',
-      togglePub:  {h:'公開ディスカバリー', s:'URL を持つ誰でも公開ページを閲覧可能。',         state:'オフ'},
-      toggle2fa:  {h:'全員に二要素認証',   s:'サインイン前に全メンバーが 2FA を有効化する。', state:'オン'},
+      formRequired: '必須',
+      togglePub:  {h:'公開ディスカバリー', s:'URL を持つ誰でも公開ページを閲覧可能。',         on:false},
+      toggle2fa:  {h:'全員に二要素認証',   s:'サインイン前に全メンバーが 2FA を有効化する。', on:true},
       formSave:   '変更を保存',           formCancel: 'キャンセル',
+      formKbHint: '保存',
       priceH1:    'チームに合わせた料金',
-      priceSub:   '無料で始め、必要なときにシートを追加。',
+      priceSub:   '無料で始め、必要なときにシートを追加。プランはいつでも変更可能。',
+      pricingMonthly: '月額', pricingYearly: '年額',
+      pricingSave: '20% お得',
       tiers: [
-        {name:'スターター', price:'無料',    unit:'',          feats:['シート 3 まで','プロジェクト無制限','コミュニティサポート'], cta:'開始'},
-        {name:'チーム',     price:'¥1,200',  unit:'/席/月',    feats:['シート無制限','SSO と監査ログ','優先サポート','API アクセス'], cta:'試用開始', popular:true, popularLabel:'人気'},
-        {name:'エンタープライズ', price:'要相談', unit:'',     feats:['カスタム契約','専用インフラ','SLA'], cta:'営業に問い合わせ'}
+        {name:'スターター',       desc:'個人・小規模チーム向け', price:'無料',    unit:'永続無料',          feats:[{t:'シート 3 まで'},{t:'プロジェクト無制限'},{t:'コミュニティサポート'},{t:'API アクセス', muted:true}], cta:'開始'},
+        {name:'チーム',           desc:'成長中のチーム向け',     price:'¥1,200',  unit:'/ 席 / 月',         feats:[{t:'シート無制限'},{t:'SSO と監査ログ'},{t:'優先サポート'},{t:'API アクセス'},{t:'カスタム連携'}], cta:'試用開始', popular:true, popularLabel:'人気'},
+        {name:'エンタープライズ', desc:'大規模組織向け',         price:'要相談',  unit:'お問い合わせ',      feats:[{t:'チームの全機能'},{t:'カスタム契約'},{t:'専用インフラ'},{t:'24/7 SLA'}], cta:'営業に問い合わせ'}
       ]
     }
   };
@@ -861,135 +1234,235 @@
     window.__currentIconSet = iconSet;
     const t = copy(locale);
     if (id === 'marketing') return surfaceMarketing(t, iconSet);
-    if (id === 'content')   return surfaceContent(t);
-    if (id === 'form')      return surfaceForm(t);
+    if (id === 'content')   return surfaceContent(t, iconSet);
+    if (id === 'form')      return surfaceForm(t, iconSet);
     if (id === 'pricing')   return surfacePricing(t, iconSet);
     return surfaceDashboard(t, iconSet);
   }
 
+  // --- helpers ---
+  function sparkline(values, w, h) {
+    w = w || 100; h = h || 28;
+    const min = Math.min.apply(null, values);
+    const max = Math.max.apply(null, values);
+    const range = max - min || 1;
+    const step = w / (values.length - 1);
+    const pts = values.map((v, i) => {
+      const x = i * step;
+      const y = h - ((v - min) / range) * (h - 4) - 2;
+      return [x, y];
+    });
+    let line = 'M ' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L ');
+    let area = line + ' L ' + w + ' ' + h + ' L 0 ' + h + ' Z';
+    return '<svg class="s-dash-stat-spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+      '<path class="spark-area" d="' + area + '"/>' +
+      '<path d="' + line + '"/>' +
+      '</svg>';
+  }
+  function hashHue(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
+    return h;
+  }
+  function avatar(name) {
+    const initial = (name || '?').trim().charAt(0).toUpperCase();
+    const hue = hashHue(name || 'x');
+    return '<span class="s-dash-avatar" style="background:hsl(' + hue + ', 55%, 52%);">' + initial + '</span>';
+  }
+
   function surfaceDashboard(t, iconSet) {
-    const navItems = ['overview','projects','team','billing','settings']
-      .map((k,i) => `<div class="s-dash-nav-item${i===0?' active':''}">${icon(k,iconSet)}<span>${t.nav[k]}</span></div>`).join('');
-    const stats = t.stats.map(s => `
-      <div class="s-dash-stat surface-card">
-        <div class="s-dash-stat-label">${s.label}</div>
-        <div class="s-dash-stat-val">${s.val}</div>
-        <div class="s-dash-stat-trend">${s.trend}</div>
-      </div>`).join('');
-    const headRow = `<div class="s-dash-row s-dash-row-head"><div>${t.tableHead[0]}</div><div>${t.tableHead[1]}</div><div>${t.tableHead[2]}</div><div></div></div>`;
-    const rows = t.tableRows.map(r => `
-      <div class="s-dash-row">
-        <div>${r.project}</div>
-        <div style="color:var(--c-text-muted);">${r.owner}</div>
-        <div><span class="s-dash-badge s-dash-badge-${r.state==='active'?'s':r.state==='pending'?'w':'i'}">${r.badge}</span></div>
-        <button class="b-ghost" style="padding:4px 8px;font-size:12px;">${icon('arrow',iconSet)}</button>
-      </div>`).join('');
-    return `
-      <div class="s-dash">
-        <aside class="s-dash-side">
-          <div class="s-dash-side-title">${icon('overview',iconSet)} ${t.brand}</div>
-          <nav class="s-dash-nav">${navItems}</nav>
-        </aside>
-        <main class="s-dash-main">
-          <h1 class="s-dash-h1">${t.dashTitle}</h1>
-          <p class="s-dash-sub">${t.dashSub}</p>
-          <div class="s-dash-stats">${stats}</div>
-          <div class="s-dash-table surface-pane">${headRow}${rows}</div>
-        </main>
-      </div>`;
+    const navHTML = t.nav.map(group =>
+      '<div class="s-dash-nav-section">' + group.section + '</div>' +
+      '<nav class="s-dash-nav">' +
+        group.items.map((item, i) => {
+          const isActive = item.id === 'overview';
+          const badgeHTML = item.badge ? '<span class="badge-mini">' + item.badge + '</span>' : '';
+          return '<div class="s-dash-nav-item' + (isActive ? ' active' : '') + '">' +
+            icon(item.id, iconSet) + '<span>' + item.label + '</span>' + badgeHTML +
+          '</div>';
+        }).join('') +
+      '</nav>'
+    ).join('');
+
+    const stats = t.stats.map(s =>
+      '<div class="s-dash-stat surface-card">' +
+        '<div class="s-dash-stat-label">' + s.label + '</div>' +
+        '<div class="s-dash-stat-row">' +
+          '<div class="s-dash-stat-val">' + s.val + '</div>' +
+          '<div class="s-dash-stat-trend' + (s.trendDown ? ' down' : '') + '">' + s.trend + '</div>' +
+        '</div>' +
+        sparkline(s.spark || [4,5,4,6,7,6,8,9]) +
+      '</div>'
+    ).join('');
+
+    const headRow = '<div class="s-dash-row s-dash-row-head">' +
+      '<div>' + t.tableHead[0] + '</div>' +
+      '<div>' + t.tableHead[1] + '</div>' +
+      '<div>' + t.tableHead[2] + '</div>' +
+      '<div></div>' +
+    '</div>';
+
+    const rows = t.tableRows.map(r =>
+      '<div class="s-dash-row">' +
+        '<div class="s-dash-cell-title">' +
+          '<span class="row-icon">' + icon(r.rowIcon || 'projects', iconSet) + '</span>' +
+          '<div class="row-text"><strong>' + r.project + '</strong>' + (r.desc ? '<span>' + r.desc + '</span>' : '') + '</div>' +
+        '</div>' +
+        '<div class="s-dash-cell-owner">' + avatar(r.owner) + '<span>' + r.owner + '</span></div>' +
+        '<div><span class="s-dash-badge s-dash-badge-' + (r.state==='active'?'s':r.state==='pending'?'w':'i') + '">' + r.badge + '</span></div>' +
+        '<button class="b-ghost" style="padding:4px 6px;">' + icon('arrow', iconSet) + '</button>' +
+      '</div>'
+    ).join('');
+
+    return '<div class="s-dash">' +
+      '<aside class="s-dash-side">' +
+        '<div class="s-dash-brand">' +
+          '<div class="s-dash-brand-dot">' + (t.brandInitial || t.brand.charAt(0)) + '</div>' +
+          '<div class="s-dash-brand-name">' + t.brand + '</div>' +
+        '</div>' +
+        navHTML +
+      '</aside>' +
+      '<main class="s-dash-main">' +
+        '<div class="s-dash-pageHead">' +
+          '<div><h1 class="s-dash-h1">' + t.dashTitle + '</h1><p class="s-dash-sub">' + t.dashSub + '</p></div>' +
+          '<div class="s-dash-actions">' +
+            '<button class="b-secondary" style="padding:7px 12px;font-size:13px;">' + icon('settings', iconSet) + '</button>' +
+            '<button class="b-primary" style="padding:7px 14px;font-size:13px;">' + icon('check', iconSet) + ' ' + t.dashAction + '</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="s-dash-stats">' + stats + '</div>' +
+        '<div class="s-dash-table surface-pane">' + headRow + rows + '</div>' +
+      '</main>' +
+    '</div>';
   }
 
   function surfaceMarketing(t, iconSet) {
-    const features = t.features.map(f => `
-      <div class="s-mkt-feat">
-        <div class="s-mkt-feat-icon">${icon(f.icon,iconSet)}</div>
-        <div class="s-mkt-feat-h">${f.h}</div>
-        <p class="s-mkt-feat-p">${f.p}</p>
-      </div>`).join('');
-    return `
-      <div class="s-mkt deco-gradient-target deco-texture-target">
-        <div class="s-mkt-eyebrow">${t.mktEyebrow}</div>
-        <h1 class="s-mkt-h1">${t.mktH1}</h1>
-        <p class="s-mkt-lead">${t.mktLead}</p>
-        <div class="s-mkt-cta-row">
-          <button class="b-primary b-lg">${t.mktCtaA} ${icon('arrow',iconSet)}</button>
-          <button class="b-secondary b-lg">${t.mktCtaB}</button>
-        </div>
-        <div class="s-mkt-features">${features}</div>
-      </div>`;
+    const features = t.features.map(f =>
+      '<div class="s-mkt-feat">' +
+        '<div class="s-mkt-feat-icon">' + icon(f.icon, iconSet) + '</div>' +
+        '<div class="s-mkt-feat-h">' + f.h + '</div>' +
+        '<p class="s-mkt-feat-p">' + f.p + '</p>' +
+        (f.link ? '<a class="s-mkt-feat-link">' + f.link + ' ' + icon('arrow', iconSet) + '</a>' : '') +
+      '</div>'
+    ).join('');
+
+    const trustLogos = (t.mktTrustLogos || []).map(l => '<span class="s-mkt-trust-logo">' + l + '</span>').join('');
+
+    return '<div class="s-mkt deco-gradient-target deco-texture-target">' +
+      '<div class="s-mkt-hero">' +
+        '<div class="s-mkt-eyebrow">' + t.mktEyebrow + '</div>' +
+        '<h1 class="s-mkt-h1">' + t.mktH1 + '</h1>' +
+        '<p class="s-mkt-lead">' + t.mktLead + '</p>' +
+        '<div class="s-mkt-cta-row">' +
+          '<button class="b-primary b-lg">' + t.mktCtaA + ' ' + icon('arrow', iconSet) + '</button>' +
+          '<button class="b-secondary b-lg">' + t.mktCtaB + '</button>' +
+          (t.mktCtaMeta ? '<span class="s-mkt-cta-meta">' + t.mktCtaMeta + '</span>' : '') +
+        '</div>' +
+        (trustLogos ? '<div class="s-mkt-trust"><span class="s-mkt-trust-label">' + (t.mktTrustLabel || '') + '</span><div class="s-mkt-trust-logos">' + trustLogos + '</div></div>' : '') +
+      '</div>' +
+      '<div class="s-mkt-features">' + features + '</div>' +
+    '</div>';
   }
 
-  function surfaceContent(t) {
-    return `
-      <article class="s-art">
-        <div class="s-art-meta">${t.artMeta}</div>
-        <h1 class="s-art-h1">${t.artH1}</h1>
-        <p>${t.artP1}</p>
-        <p>${t.artP2}</p>
-        <blockquote class="s-art-pull">${t.artPull}</blockquote>
-        <p>${t.artP3}</p>
-        <div class="s-art-figure surface-card">${t.artFig}</div>
-      </article>`;
+  function surfaceContent(t, iconSet) {
+    return '<article class="s-art">' +
+      '<div class="s-art-meta">' +
+        (t.artTag ? '<span class="s-art-meta-tag">' + t.artTag + '</span>' : '') +
+        '<span>' + (t.artMeta || '') + '</span>' +
+      '</div>' +
+      '<h1 class="s-art-h1">' + t.artH1 + '</h1>' +
+      (t.artDeck ? '<p class="s-art-deck">' + t.artDeck + '</p>' : '') +
+      (t.artAuthor ? '<div class="s-art-author">' + avatar(t.artAuthor) +
+        '<div class="s-art-author-info"><strong>' + t.artAuthor + '</strong><span>' + (t.artAuthorTitle || '') + '</span></div>' +
+      '</div>' : '') +
+      '<p>' + t.artP1 + '</p>' +
+      '<p>' + t.artP2 + '</p>' +
+      '<blockquote class="s-art-pull">' + t.artPull + '</blockquote>' +
+      '<p>' + t.artP3 + '</p>' +
+      '<div class="s-art-figure">' +
+        '<div class="s-art-figure-icon">' + icon('overview', iconSet) + '</div>' +
+        '<div class="s-art-figure-cap">' + (t.artFigCap || '') + '</div>' +
+      '</div>' +
+    '</article>';
   }
 
-  function surfaceForm(t) {
-    const opts = t.formContactO.map(o => `<option>${o}</option>`).join('');
-    return `
-      <div class="s-form">
-        <h1 class="s-form-h1">${t.formH1}</h1>
-        <p class="s-form-sub">${t.formSub}</p>
-        <div class="s-form-group">
-          <label class="s-form-label">${t.formNameL}</label>
-          <input class="s-form-input" type="text" value="${t.formNameV}">
-        </div>
-        <div class="s-form-group">
-          <label class="s-form-label">${t.formSlugL}</label>
-          <input class="s-form-input" type="text" value="${t.formSlugV}">
-          <div class="s-form-help">${t.formSlugH}</div>
-        </div>
-        <div class="s-form-group">
-          <label class="s-form-label">${t.formContactL}</label>
-          <select class="s-form-select">${opts}</select>
-        </div>
-        <div class="s-form-group">
-          <label class="s-form-label">${t.formDescL}</label>
-          <textarea class="s-form-textarea">${t.formDescV}</textarea>
-        </div>
-        <div class="s-form-toggle-row">
-          <div class="s-form-toggle-info">
-            <strong>${t.togglePub.h}</strong>
-            <span>${t.togglePub.s}</span>
-          </div>
-          <button class="b-secondary" style="padding:6px 14px;font-size:13px;">${t.togglePub.state}</button>
-        </div>
-        <div class="s-form-toggle-row">
-          <div class="s-form-toggle-info">
-            <strong>${t.toggle2fa.h}</strong>
-            <span>${t.toggle2fa.s}</span>
-          </div>
-          <button class="b-primary" style="padding:6px 14px;font-size:13px;">${t.toggle2fa.state}</button>
-        </div>
-        <div class="s-form-actions">
-          <button class="b-primary">${t.formSave}</button>
-          <button class="b-secondary">${t.formCancel}</button>
-        </div>
-      </div>`;
+  function surfaceForm(t, iconSet) {
+    const opts = t.formContactO.map(o => '<option>' + o + '</option>').join('');
+    return '<div class="s-form">' +
+      '<div class="s-form-head">' +
+        '<div class="s-form-head-text">' +
+          '<h1 class="s-form-h1">' + t.formH1 + '</h1>' +
+          '<p class="s-form-sub">' + t.formSub + '</p>' +
+        '</div>' +
+        '<button class="b-secondary" style="padding:7px 12px;font-size:13px;">' + icon('settings', iconSet) + '</button>' +
+      '</div>' +
+
+      '<div class="s-form-section surface-card">' +
+        '<div class="s-form-section-title"><span class="s-form-section-title-icon">' + icon('overview', iconSet) + '</span>' + (t.formSection1 || '') + '</div>' +
+        '<div class="s-form-group">' +
+          '<div class="s-form-label-row"><label class="s-form-label">' + t.formNameL + '</label><span class="s-form-required">' + (t.formRequired || '') + '</span></div>' +
+          '<div class="s-form-input-wrap"><span class="s-form-input-icon">' + icon('projects', iconSet) + '</span><input class="s-form-input has-icon" type="text" value="' + t.formNameV + '"></div>' +
+        '</div>' +
+        '<div class="s-form-group">' +
+          '<label class="s-form-label">' + t.formSlugL + '</label>' +
+          '<input class="s-form-input" type="text" value="' + t.formSlugV + '">' +
+          '<div class="s-form-help">' + t.formSlugH + '</div>' +
+        '</div>' +
+        '<div class="s-form-group">' +
+          '<label class="s-form-label">' + t.formContactL + '</label>' +
+          '<select class="s-form-select">' + opts + '</select>' +
+        '</div>' +
+        '<div class="s-form-group">' +
+          '<label class="s-form-label">' + t.formDescL + '</label>' +
+          '<textarea class="s-form-textarea">' + t.formDescV + '</textarea>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="s-form-section surface-card">' +
+        '<div class="s-form-section-title"><span class="s-form-section-title-icon">' + icon('shield', iconSet) + '</span>' + (t.formSection2 || '') + '</div>' +
+        '<div class="s-form-toggle-row">' +
+          '<div class="s-form-toggle-info"><strong>' + t.togglePub.h + '</strong><span>' + t.togglePub.s + '</span></div>' +
+          '<div class="s-form-toggle' + (t.togglePub.on ? ' on' : '') + '"></div>' +
+        '</div>' +
+        '<div class="s-form-toggle-row">' +
+          '<div class="s-form-toggle-info"><strong>' + t.toggle2fa.h + '</strong><span>' + t.toggle2fa.s + '</span></div>' +
+          '<div class="s-form-toggle' + (t.toggle2fa.on ? ' on' : '') + '"></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="s-form-actions">' +
+        '<button class="b-primary">' + t.formSave + '</button>' +
+        '<button class="b-secondary">' + t.formCancel + '</button>' +
+        '<span class="keyboard-hint"><kbd>⌘</kbd><kbd>S</kbd> ' + (t.formKbHint || '') + '</span>' +
+      '</div>' +
+    '</div>';
   }
 
   function surfacePricing(t, iconSet) {
-    const tiers = t.tiers.map(tier => `
-      <div class="s-price-card surface-card${tier.popular?' featured':''}"${tier.popular?` data-popular="${tier.popularLabel}"`:''}>
-        <div class="s-price-tier">${tier.name}</div>
-        <div class="s-price-amount">${tier.price}<span>${tier.unit}</span></div>
-        <ul class="s-price-list">${tier.feats.map(f=>`<li>${icon('check',iconSet)} ${f}</li>`).join('')}</ul>
-        <button class="${tier.popular?'b-primary':'b-secondary'}">${tier.cta}</button>
-      </div>`).join('');
-    return `
-      <div class="s-price">
-        <h1 class="s-price-h1">${t.priceH1}</h1>
-        <p class="s-price-sub">${t.priceSub}</p>
-        <div class="s-price-grid">${tiers}</div>
-      </div>`;
+    const tiers = t.tiers.map(tier => {
+      const feats = tier.feats.map(f => {
+        const obj = (typeof f === 'string') ? {t: f} : f;
+        return '<li' + (obj.muted ? ' class="muted"' : '') + '>' + icon('check', iconSet) + ' ' + obj.t + '</li>';
+      }).join('');
+      return '<div class="s-price-card surface-card' + (tier.popular ? ' featured' : '') + '"' + (tier.popular ? ' data-popular="' + tier.popularLabel + '"' : '') + '>' +
+        '<div><div class="s-price-tier">' + tier.name + '</div>' + (tier.desc ? '<div class="s-price-tier-desc">' + tier.desc + '</div>' : '') + '</div>' +
+        '<div class="s-price-amount">' + tier.price + '<span>' + tier.unit + '</span></div>' +
+        '<ul class="s-price-list">' + feats + '</ul>' +
+        '<button class="' + (tier.popular ? 'b-primary' : 'b-secondary') + '">' + tier.cta + '</button>' +
+      '</div>';
+    }).join('');
+
+    return '<div class="s-price">' +
+      '<div class="s-price-head">' +
+        '<h1 class="s-price-h1">' + t.priceH1 + '</h1>' +
+        '<p class="s-price-sub">' + t.priceSub + '</p>' +
+      '</div>' +
+      '<div class="s-price-toggle-wrap"><div class="s-price-toggle">' +
+        '<button>' + (t.pricingMonthly || 'Monthly') + '</button>' +
+        '<button class="active">' + (t.pricingYearly || 'Yearly') + '<span class="price-save">' + (t.pricingSave || 'Save 20%') + '</span></button>' +
+      '</div></div>' +
+      '<div class="s-price-grid">' + tiers + '</div>' +
+    '</div>';
   }
 
   // ================== MODE DISPATCH ==================
@@ -1010,11 +1483,15 @@
     };
     loadFonts(fonts, state.locale);
 
-    const chrome = document.createElement('div');
-    chrome.className = 'chrome-bar';
-    root.appendChild(chrome);
+    const shell = document.createElement('div');
+    shell.className = 'app-shell';
+    root.appendChild(shell);
 
-    const stage = document.createElement('div');
+    const chrome = document.createElement('aside');
+    chrome.className = 'sidebar';
+    shell.appendChild(chrome);
+
+    const stage = document.createElement('main');
     stage.className = 'stage';
     const headEl = document.createElement('div');
     if (C.title || C.subtitle) {
@@ -1025,7 +1502,7 @@
     const grid = document.createElement('div');
     grid.className = 'compare-grid';
     stage.appendChild(grid);
-    root.appendChild(stage);
+    shell.appendChild(stage);
 
     // Floating action bar (hidden until something is picked)
     const bar = document.createElement('div');
@@ -1042,24 +1519,21 @@
 
     function paintChrome() {
       const T = tt(state.locale);
+      function section(label, groupId, items, dataKey, current, labelOf) {
+        const btns = items.map(s =>
+          '<button class="chrome-btn ' + (s.id===current?'active':'') + '" data-' + dataKey + '="' + s.id + '">' + (labelOf ? labelOf(s) : s.label) + '</button>'
+        ).join('');
+        return '<div class="sidebar-section">' +
+          '<div class="sidebar-label">' + label + '</div>' +
+          '<div class="chrome-group" id="' + groupId + '">' + btns + '</div>' +
+        '</div>';
+      }
       chrome.innerHTML =
-        '<div class="chrome-title">' + T.compareTitle + ' <small>' + T.compareMeta(C.options.length) + '</small></div>' +
-        '<span class="chrome-label">' + T.lSurface + '</span>' +
-        '<div class="chrome-group" id="cmp-surface">' + SURFACES.map(s =>
-          '<button class="chrome-btn ' + (s.id===state.surface?'active':'') + '" data-surface="' + s.id + '">' + s.label + '</button>'
-        ).join('') + '</div>' +
-        '<span class="chrome-label">' + T.lContainer + '</span>' +
-        '<div class="chrome-group" id="cmp-strategy">' + STRATEGIES.map(s =>
-          '<button class="chrome-btn ' + (s.id===state.strategy?'active':'') + '" data-strategy="' + s.id + '">' + localizedStrategyLabel(s.id) + '</button>'
-        ).join('') + '</div>' +
-        '<span class="chrome-label">' + T.lIcons + '</span>' +
-        '<div class="chrome-group" id="cmp-icon">' + ICON_SETS.map(s =>
-          '<button class="chrome-btn ' + (s.id===state.iconSet?'active':'') + '" data-icon="' + s.id + '">' + s.label + '</button>'
-        ).join('') + '</div>' +
-        '<span class="chrome-label">' + T.lLocale + '</span>' +
-        '<div class="chrome-group" id="cmp-locale">' + LOCALES.map(s =>
-          '<button class="chrome-btn ' + (s.id===state.locale?'active':'') + '" data-locale="' + s.id + '">' + s.label + '</button>'
-        ).join('') + '</div>';
+        '<div class="sidebar-title">' + T.compareTitle + '<small>' + T.compareMeta(C.options.length) + '</small></div>' +
+        section(T.lSurface,    'cmp-surface',  SURFACES,   'surface',  state.surface) +
+        section(T.lContainer,  'cmp-strategy', STRATEGIES, 'strategy', state.strategy, s => localizedStrategyLabel(s.id)) +
+        section(T.lIcons,      'cmp-icon',     ICON_SETS,  'icon',     state.iconSet) +
+        section(T.lLocale,     'cmp-locale',   LOCALES,    'locale',   state.locale);
       attachChromeBindings();
     }
 
@@ -1204,16 +1678,20 @@
 
     loadFonts([C.fonts.heading, C.fonts.body, C.fonts.mono], state.locale);
 
-    const chrome = document.createElement('div');
-    chrome.className = 'chrome-bar';
-    root.appendChild(chrome);
+    const shell = document.createElement('div');
+    shell.className = 'app-shell';
+    root.appendChild(shell);
 
-    const stage = document.createElement('div');
+    const chrome = document.createElement('aside');
+    chrome.className = 'sidebar';
+    shell.appendChild(chrome);
+
+    const stage = document.createElement('main');
     stage.className = 'stage';
     const frame = document.createElement('div');
     frame.className = 'full-frame';
     stage.appendChild(frame);
-    root.appendChild(stage);
+    shell.appendChild(stage);
 
     function localizedStrategyLabel(id) {
       const T = tt(state.locale);
@@ -1222,49 +1700,34 @@
 
     function paintChrome() {
       const T = tt(state.locale);
+      function section(label, groupId, items, dataKey, current, labelOf) {
+        const btns = items.map(s =>
+          '<button class="chrome-btn ' + (s.id===current?'active':'') + '" data-' + dataKey + '="' + s.id + '"' + (s.disabled || '') + '>' + (labelOf ? labelOf(s) : s.label) + '</button>'
+        ).join('');
+        return '<div class="sidebar-section">' +
+          '<div class="sidebar-label">' + label + '</div>' +
+          '<div class="chrome-group" id="' + groupId + '">' + btns + '</div>' +
+        '</div>';
+      }
       chrome.innerHTML =
-        '<div class="chrome-title">' + (C.name || T.designSystem) + ' ' + (C.family ? '<small>· ' + C.family + '</small>' : '') + '</div>' +
-        '<span class="chrome-label">' + T.lSurface + '</span>' +
-        '<div class="chrome-group" id="full-surface">' + surfaceList.map(s =>
-          '<button class="chrome-btn ' + (s.id===state.surface?'active':'') + '" data-surface="' + s.id + '">' + s.label + '</button>'
-        ).join('') + '</div>' +
-        '<span class="chrome-label">' + T.lContainer + '</span>' +
-        '<div class="chrome-group" id="full-strategy">' + STRATEGIES.map(s =>
-          '<button class="chrome-btn ' + (s.id===state.strategy?'active':'') + '" data-strategy="' + s.id + '">' + localizedStrategyLabel(s.id) + '</button>'
-        ).join('') + '</div>' +
-        '<span class="chrome-label">' + T.lIcons + '</span>' +
-        '<div class="chrome-group" id="full-icon">' + ICON_SETS.map(s =>
-          '<button class="chrome-btn ' + (s.id===state.iconSet?'active':'') + '" data-icon="' + s.id + '">' + s.label + '</button>'
-        ).join('') + '</div>' +
-        '<span class="chrome-label">' + T.lGradient + '</span>' +
-        '<div class="chrome-group" id="full-gradient">' +
-          '<button class="chrome-btn ' + (state.gradient==='none'?'active':'') + '" data-gradient="none">' + T.gNone + '</button>' +
-          '<button class="chrome-btn ' + (state.gradient==='subtle'?'active':'') + '" data-gradient="subtle">' + T.gSubtle + '</button>' +
-          '<button class="chrome-btn ' + (state.gradient==='expressive'?'active':'') + '" data-gradient="expressive">' + T.gExpressive + '</button>' +
-        '</div>' +
-        '<span class="chrome-label">' + T.lTexture + '</span>' +
-        '<div class="chrome-group" id="full-texture">' +
-          '<button class="chrome-btn ' + (state.texture==='none'?'active':'') + '" data-texture="none">' + T.tNone + '</button>' +
-          '<button class="chrome-btn ' + (state.texture==='noise'?'active':'') + '" data-texture="noise">' + T.tNoise + '</button>' +
-          '<button class="chrome-btn ' + (state.texture==='dot-grid'?'active':'') + '" data-texture="dot-grid">' + T.tDot + '</button>' +
-          '<button class="chrome-btn ' + (state.texture==='paper'?'active':'') + '" data-texture="paper">' + T.tPaper + '</button>' +
-          '<button class="chrome-btn ' + (state.texture==='scan-lines'?'active':'') + '" data-texture="scan-lines">' + T.tScan + '</button>' +
-        '</div>' +
-        '<span class="chrome-label">' + T.lLocale + '</span>' +
-        '<div class="chrome-group" id="full-locale">' + LOCALES.map(s =>
-          '<button class="chrome-btn ' + (s.id===state.locale?'active':'') + '" data-locale="' + s.id + '">' + s.label + '</button>'
-        ).join('') + '</div>' +
-        '<span class="chrome-label">' + T.lViewport + '</span>' +
-        '<div class="chrome-group" id="full-viewport">' +
-          '<button class="chrome-btn ' + (state.viewport==='desktop'?'active':'') + '" data-viewport="desktop">' + T.vDesktop + '</button>' +
-          '<button class="chrome-btn ' + (state.viewport==='tablet'?'active':'')  + '" data-viewport="tablet">'  + T.vTablet  + '</button>' +
-          '<button class="chrome-btn ' + (state.viewport==='mobile'?'active':'')  + '" data-viewport="mobile">'  + T.vMobile  + '</button>' +
-        '</div>' +
-        '<span class="chrome-label">' + T.lTheme + '</span>' +
-        '<div class="chrome-group" id="full-theme">' +
-          '<button class="chrome-btn ' + (!state.darkMode?'active':'') + '" data-theme="light">' + T.thLight + '</button>' +
-          '<button class="chrome-btn ' + (state.darkMode?'active':'')  + '" data-theme="dark"' + (C.colors.dark ? '' : ' disabled title="' + T.noDarkTokens + '"') + '>' + T.thDark + '</button>' +
-        '</div>' +
+        '<div class="sidebar-title">' + (C.name || T.designSystem) + (C.family ? '<small>' + C.family + '</small>' : '') + '</div>' +
+        section(T.lSurface,    'full-surface',  surfaceList, 'surface', state.surface) +
+        section(T.lContainer,  'full-strategy', STRATEGIES,  'strategy', state.strategy, s => localizedStrategyLabel(s.id)) +
+        section(T.lIcons,      'full-icon',     ICON_SETS,   'icon',     state.iconSet) +
+        section(T.lGradient,   'full-gradient',
+          [{id:'none',label:T.gNone},{id:'subtle',label:T.gSubtle},{id:'expressive',label:T.gExpressive}],
+          'gradient', state.gradient) +
+        section(T.lTexture,    'full-texture',
+          [{id:'none',label:T.tNone},{id:'noise',label:T.tNoise},{id:'dot-grid',label:T.tDot},{id:'paper',label:T.tPaper},{id:'scan-lines',label:T.tScan}],
+          'texture', state.texture) +
+        section(T.lLocale,     'full-locale',   LOCALES, 'locale', state.locale) +
+        section(T.lViewport,   'full-viewport',
+          [{id:'desktop',label:T.vDesktop},{id:'tablet',label:T.vTablet},{id:'mobile',label:T.vMobile}],
+          'viewport', state.viewport) +
+        section(T.lTheme,      'full-theme',
+          [{id:'light',label:T.thLight},{id:'dark',label:T.thDark, disabled: C.colors.dark ? '' : ' disabled title="' + T.noDarkTokens + '"'}],
+          'theme', state.darkMode ? 'dark' : 'light') +
+        '<div class="sidebar-spacer"></div>' +
         '<button class="chrome-copy" id="full-copy">' + T.copyConfig + '</button>';
 
       attachChromeBindings();
