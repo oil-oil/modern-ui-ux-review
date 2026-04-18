@@ -406,6 +406,62 @@
   .locale-zh-CN .s-price-h1, .locale-ja .s-price-h1, .locale-ko .s-price-h1 {
     letter-spacing: 0;
   }
+
+  /* ===== Compare mode: Pick button + selected state ===== */
+  .candidate-pick {
+    background: transparent; border: 1px solid #e5e5e5;
+    color: #555; font-family: inherit;
+    padding: 4px 10px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    transition: background 120ms, color 120ms, border-color 120ms;
+    white-space: nowrap;
+  }
+  .candidate-pick:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .candidate.selected { outline: 2px solid #1a1a1a; outline-offset: -1px; }
+  .candidate.selected .candidate-pick {
+    background: #1a1a1a; color: #fff; border-color: #1a1a1a;
+  }
+  .candidate.selected .candidate-pick::after { content: ' ✓'; }
+
+  /* ===== Floating action bar (Compare mode) ===== */
+  .action-bar {
+    position: fixed; left: 50%; bottom: 24px;
+    transform: translateX(-50%) translateY(120%);
+    background: #1a1a1a; color: #fff;
+    border-radius: 999px;
+    padding: 8px 8px 8px 18px;
+    display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
+    transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 200;
+    font-size: 13px;
+    max-width: calc(100vw - 48px);
+  }
+  .action-bar.visible { transform: translateX(-50%) translateY(0); }
+  .action-bar-text { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px; }
+  .action-bar-text strong { font-weight: 700; }
+  .action-bar-copy {
+    background: #ffffff; color: #1a1a1a;
+    border: none; border-radius: 999px;
+    padding: 8px 18px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: background 120ms;
+    white-space: nowrap;
+  }
+  .action-bar-copy:hover { background: #f0f0f0; }
+  .action-bar-copy.copied { background: #16a34a; color: #fff; }
+
+  /* ===== Full mode: Copy config button (in chrome) ===== */
+  .chrome-copy {
+    background: #1a1a1a; color: #fff;
+    border: none; border-radius: 6px;
+    padding: 6px 12px; font-size: 11px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: background 120ms;
+    white-space: nowrap;
+  }
+  .chrome-copy:hover { background: #333; }
+  .chrome-copy.copied { background: #16a34a; }
 </style>
 </head>
 <body>
@@ -415,8 +471,11 @@
 (function() {
   const C = window.__DESIGN_CONFIG__;
   if (!C) {
+    // Try to detect locale from browser for the error message
+    const navLoc = (navigator.language || 'en').toLowerCase();
+    const errLoc = navLoc.startsWith('zh') ? 'zh-CN' : navLoc.startsWith('ja') ? 'ja' : 'en';
     document.getElementById('root').innerHTML =
-      '<p style="color:#c00;text-align:center;padding:80px 0;font-size:14px;">Missing /tmp/design-config.js</p>';
+      '<p style="color:#c00;text-align:center;padding:80px 0;font-size:14px;">' + tt(errLoc).missingConfig + '</p>';
     return;
   }
 
@@ -500,6 +559,94 @@
     set = set || (window.__currentIconSet) || 'lucide';
     return (ICONS[set] && ICONS[set][name]) || ICONS.lucide[name] || '';
   }
+
+  // ================== UI COPY (chrome strings, per locale) ==================
+  // Distinct from COPY (demo content). UI_COPY localizes the template's own
+  // controls so a Chinese-speaking user doesn't see "Surface / Container /
+  // Gradient" in English while previewing a Chinese product.
+  const UI_COPY = {
+    'en': {
+      compareTitle: 'Compare directions',
+      compareMeta:  function(n) { return n + ' options · same content, same surface'; },
+      designSystem: 'Design System',
+      // chrome labels
+      lSurface:'Surface', lContainer:'Container', lIcons:'Icons', lGradient:'Gradient',
+      lTexture:'Texture', lLocale:'Locale', lViewport:'Viewport', lTheme:'Theme',
+      // strategy
+      sBorder:'Border', sTinted:'Tinted', sElevation:'Elevation', sDivider:'Divider', sNone:'None',
+      // gradient / texture / theme / viewport
+      gNone:'None', gSubtle:'Subtle', gExpressive:'Expressive',
+      tNone:'None', tNoise:'Noise', tDot:'Dot', tPaper:'Paper', tScan:'Scan',
+      thLight:'Light', thDark:'Dark',
+      vDesktop:'Desktop', vTablet:'Tablet', vMobile:'Mobile',
+      // pick + action bar
+      pickThis:'Pick',
+      barSelected:function(label,subtitle){ return 'Direction <strong>' + label + '</strong>' + (subtitle?' · '+subtitle:'') + ' selected'; },
+      copyPrompt:'Copy prompt',
+      copied:'Copied',
+      // copy-prompt body for compare
+      promptCompareIntro:function(label,subtitle){ return 'I pick direction ' + label + (subtitle?' — "' + subtitle + '"':''); },
+      promptCompareUse:'Use this token set to continue Phase 3.',
+      // copy-config (full mode)
+      copyConfig:'Copy current state',
+      promptFullIntro:function(name){ return 'Current state of "' + (name||'project') + '" preview that I am happy with:'; },
+      promptFullNext:'Please proceed to Phase 4b (business mockup) using these tokens.',
+      // banners
+      missingConfig:'Missing /tmp/design-config.js',
+      loadingConfig:'Loading design config…',
+      noDarkTokens:'No dark tokens defined in config'
+    },
+    'zh-CN': {
+      compareTitle: '方向对比',
+      compareMeta:  function(n) { return n + ' 个候选 · 相同内容、相同页面'; },
+      designSystem: '设计系统',
+      lSurface:'页面', lContainer:'容器', lIcons:'图标', lGradient:'渐变',
+      lTexture:'纹理', lLocale:'语言', lViewport:'视口', lTheme:'主题',
+      sBorder:'边框', sTinted:'色块', sElevation:'阴影', sDivider:'分隔线', sNone:'无',
+      gNone:'无', gSubtle:'克制', gExpressive:'强烈',
+      tNone:'无', tNoise:'噪点', tDot:'点阵', tPaper:'纸纹', tScan:'扫描线',
+      thLight:'浅色', thDark:'深色',
+      vDesktop:'桌面', vTablet:'平板', vMobile:'手机',
+      pickThis:'选这个',
+      barSelected:function(label,subtitle){ return '已选方向 <strong>' + label + '</strong>' + (subtitle?' · '+subtitle:''); },
+      copyPrompt:'复制提示词',
+      copied:'已复制',
+      promptCompareIntro:function(label,subtitle){ return '我选 ' + label + ' 方向' + (subtitle?'——"' + subtitle + '"':''); },
+      promptCompareUse:'请用这套 token 继续 Phase 3，问我下一组细节。',
+      copyConfig:'复制当前配置',
+      promptFullIntro:function(name){ return '我对当前的 "' + (name||'项目') + '" 预览状态感觉不错，配置如下：'; },
+      promptFullNext:'请用这套 token 进入 Phase 4b，开始生成业务设计稿。',
+      missingConfig:'缺少 /tmp/design-config.js',
+      loadingConfig:'正在加载配置…',
+      noDarkTokens:'配置中未定义深色 token'
+    },
+    'ja': {
+      compareTitle: '方向の比較',
+      compareMeta:  function(n) { return n + ' 案 · 同じコンテンツ、同じ画面'; },
+      designSystem: 'デザインシステム',
+      lSurface:'画面', lContainer:'コンテナ', lIcons:'アイコン', lGradient:'グラデーション',
+      lTexture:'テクスチャ', lLocale:'言語', lViewport:'ビューポート', lTheme:'テーマ',
+      sBorder:'枠線', sTinted:'色面', sElevation:'シャドウ', sDivider:'区切り線', sNone:'なし',
+      gNone:'なし', gSubtle:'控えめ', gExpressive:'強調',
+      tNone:'なし', tNoise:'ノイズ', tDot:'ドット', tPaper:'ペーパー', tScan:'走査線',
+      thLight:'ライト', thDark:'ダーク',
+      vDesktop:'PC', vTablet:'タブレット', vMobile:'モバイル',
+      pickThis:'これを選ぶ',
+      barSelected:function(label,subtitle){ return '<strong>' + label + '</strong>' + (subtitle?' · '+subtitle:'') + ' を選択中'; },
+      copyPrompt:'プロンプトをコピー',
+      copied:'コピー済み',
+      promptCompareIntro:function(label,subtitle){ return '方向 ' + label + (subtitle?'（' + subtitle + '）':'') + ' を選びます'; },
+      promptCompareUse:'この token セットで Phase 3 を続けてください。',
+      copyConfig:'現状をコピー',
+      promptFullIntro:function(name){ return '現時点で気に入っている "' + (name||'プロジェクト') + '" プレビューの設定：'; },
+      promptFullNext:'これらの token で Phase 4b（ビジネスモックアップ）へ進んでください。',
+      missingConfig:'/tmp/design-config.js が見つかりません',
+      loadingConfig:'設定を読み込み中…',
+      noDarkTokens:'ダーク token が config に定義されていません'
+    }
+  };
+
+  function tt(locale) { return UI_COPY[locale] || UI_COPY.en; }
 
   // ================== DEMO COPY (per locale) ==================
   const COPY = {
@@ -851,104 +998,192 @@
 
   // ================== COMPARE MODE ==================
   function renderCompare() {
-    const surface  = C.surface || 'dashboard';
-    const strategy = C.containerStrategy || 'border';
-    const iconSet  = C.iconSet || 'lucide';
-    const locale   = C.locale || 'en';
-
     const fonts = [];
     C.options.forEach(o => { if (o.fonts) fonts.push(o.fonts.heading, o.fonts.body); });
-    loadFonts(fonts, locale);
+
+    let state = {
+      surface:   C.surface || 'dashboard',
+      strategy:  C.containerStrategy || 'border',
+      iconSet:   C.iconSet || 'lucide',
+      locale:    C.locale || 'en',
+      selected:  null   // index of currently picked option
+    };
+    loadFonts(fonts, state.locale);
 
     const chrome = document.createElement('div');
     chrome.className = 'chrome-bar';
-    chrome.innerHTML = `
-      <div class="chrome-title">Compare directions <small>${C.options.length} options · same content, same surface</small></div>
-      <span class="chrome-label">Surface</span>
-      <div class="chrome-group" id="cmp-surface">${SURFACES.map(s => `<button class="chrome-btn ${s.id===surface?'active':''}" data-surface="${s.id}">${s.label}</button>`).join('')}</div>
-      <span class="chrome-label">Container</span>
-      <div class="chrome-group" id="cmp-strategy">${STRATEGIES.map(s => `<button class="chrome-btn ${s.id===strategy?'active':''}" data-strategy="${s.id}">${s.label}</button>`).join('')}</div>
-      <span class="chrome-label">Icons</span>
-      <div class="chrome-group" id="cmp-icon">${ICON_SETS.map(s => `<button class="chrome-btn ${s.id===iconSet?'active':''}" data-icon="${s.id}">${s.label}</button>`).join('')}</div>
-      <span class="chrome-label">Locale</span>
-      <div class="chrome-group" id="cmp-locale">${LOCALES.map(s => `<button class="chrome-btn ${s.id===locale?'active':''}" data-locale="${s.id}">${s.label}</button>`).join('')}</div>
-    `;
     root.appendChild(chrome);
 
     const stage = document.createElement('div');
     stage.className = 'stage';
+    const headEl = document.createElement('div');
     if (C.title || C.subtitle) {
-      const head = document.createElement('div');
-      head.className = 'compare-header';
-      head.innerHTML = `${C.title ? `<h1>${C.title}</h1>` : ''}${C.subtitle ? `<p>${C.subtitle}</p>` : ''}`;
-      stage.appendChild(head);
+      headEl.className = 'compare-header';
+      headEl.innerHTML = `${C.title ? `<h1>${C.title}</h1>` : ''}${C.subtitle ? `<p>${C.subtitle}</p>` : ''}`;
+      stage.appendChild(headEl);
     }
     const grid = document.createElement('div');
     grid.className = 'compare-grid';
     stage.appendChild(grid);
     root.appendChild(stage);
 
-    let state = { surface, strategy, iconSet, locale };
+    // Floating action bar (hidden until something is picked)
+    const bar = document.createElement('div');
+    bar.className = 'action-bar';
+    bar.innerHTML =
+      '<span class="action-bar-text" id="bar-text"></span>' +
+      '<button class="action-bar-copy" id="bar-copy"></button>';
+    document.body.appendChild(bar);
 
-    function paint() {
+    function localizedStrategyLabel(id) {
+      const T = tt(state.locale);
+      return ({border:T.sBorder, tinted:T.sTinted, elevation:T.sElevation, divider:T.sDivider, none:T.sNone})[id] || id;
+    }
+
+    function paintChrome() {
+      const T = tt(state.locale);
+      chrome.innerHTML =
+        '<div class="chrome-title">' + T.compareTitle + ' <small>' + T.compareMeta(C.options.length) + '</small></div>' +
+        '<span class="chrome-label">' + T.lSurface + '</span>' +
+        '<div class="chrome-group" id="cmp-surface">' + SURFACES.map(s =>
+          '<button class="chrome-btn ' + (s.id===state.surface?'active':'') + '" data-surface="' + s.id + '">' + s.label + '</button>'
+        ).join('') + '</div>' +
+        '<span class="chrome-label">' + T.lContainer + '</span>' +
+        '<div class="chrome-group" id="cmp-strategy">' + STRATEGIES.map(s =>
+          '<button class="chrome-btn ' + (s.id===state.strategy?'active':'') + '" data-strategy="' + s.id + '">' + localizedStrategyLabel(s.id) + '</button>'
+        ).join('') + '</div>' +
+        '<span class="chrome-label">' + T.lIcons + '</span>' +
+        '<div class="chrome-group" id="cmp-icon">' + ICON_SETS.map(s =>
+          '<button class="chrome-btn ' + (s.id===state.iconSet?'active':'') + '" data-icon="' + s.id + '">' + s.label + '</button>'
+        ).join('') + '</div>' +
+        '<span class="chrome-label">' + T.lLocale + '</span>' +
+        '<div class="chrome-group" id="cmp-locale">' + LOCALES.map(s =>
+          '<button class="chrome-btn ' + (s.id===state.locale?'active':'') + '" data-locale="' + s.id + '">' + s.label + '</button>'
+        ).join('') + '</div>';
+      attachChromeBindings();
+    }
+
+    function paintGrid() {
+      const T = tt(state.locale);
       grid.innerHTML = '';
-      C.options.forEach(opt => {
+      C.options.forEach((opt, idx) => {
         const card = document.createElement('div');
-        card.className = 'candidate';
+        card.className = 'candidate' + (state.selected === idx ? ' selected' : '');
         const c = opt.colors, f = opt.fonts || {}, r = opt.radius || { sm:'4px', md:'8px', lg:'12px' };
-        card.innerHTML = `
-          <div class="candidate-head">
-            <span class="candidate-label">${opt.label || ''}</span>
-            <div class="candidate-meta">
-              ${opt.family ? `<div class="candidate-family">${opt.family}</div>` : ''}
-              <div class="candidate-subtitle">${opt.subtitle || ''}</div>
-            </div>
-          </div>
-          <div class="candidate-stage stage-root strategy-${state.strategy} locale-${state.locale}">${renderSurface(state.surface, state.locale, state.iconSet)}</div>
-          <div class="candidate-tokens">
-            <div class="token-row">
-              <strong>Color</strong>
-              <span class="token-swatch" style="background:${c.primary};" title="primary"></span>
-              <span class="token-swatch" style="background:${c.bg};" title="bg"></span>
-              <span class="token-swatch" style="background:${c.surface};" title="surface"></span>
-              <span class="token-swatch" style="background:${c.text};" title="text"></span>
-              <span class="token-swatch" style="background:${c.border};" title="border"></span>
-            </div>
-            <div class="token-row">
-              <strong>Type</strong>
-              <span class="token-pill">${f.heading || 'system'}</span>
-              <span class="token-pill">${f.body || 'system'}</span>
-            </div>
-            <div class="token-row">
-              <strong>Radius</strong>
-              <span class="token-pill">${r.sm}</span>
-              <span class="token-pill">${r.md}</span>
-              ${r.lg ? `<span class="token-pill">${r.lg}</span>` : ''}
-            </div>
-          </div>
-        `;
+        card.innerHTML =
+          '<div class="candidate-head">' +
+            '<span class="candidate-label">' + (opt.label || '') + '</span>' +
+            '<div class="candidate-meta">' +
+              (opt.family ? '<div class="candidate-family">' + opt.family + '</div>' : '') +
+              '<div class="candidate-subtitle">' + (opt.subtitle || '') + '</div>' +
+            '</div>' +
+            '<button class="candidate-pick" data-pick-idx="' + idx + '">' + T.pickThis + '</button>' +
+          '</div>' +
+          '<div class="candidate-stage stage-root strategy-' + state.strategy + ' locale-' + state.locale + '">' +
+            renderSurface(state.surface, state.locale, state.iconSet) +
+          '</div>' +
+          '<div class="candidate-tokens">' +
+            '<div class="token-row"><strong>Color</strong>' +
+              '<span class="token-swatch" style="background:' + c.primary + ';"></span>' +
+              '<span class="token-swatch" style="background:' + c.bg + ';"></span>' +
+              '<span class="token-swatch" style="background:' + c.surface + ';"></span>' +
+              '<span class="token-swatch" style="background:' + c.text + ';"></span>' +
+              '<span class="token-swatch" style="background:' + c.border + ';"></span>' +
+            '</div>' +
+            '<div class="token-row"><strong>Type</strong>' +
+              '<span class="token-pill">' + (f.heading || 'system') + '</span>' +
+              '<span class="token-pill">' + (f.body || 'system') + '</span>' +
+            '</div>' +
+            '<div class="token-row"><strong>Radius</strong>' +
+              '<span class="token-pill">' + r.sm + '</span>' +
+              '<span class="token-pill">' + r.md + '</span>' +
+              (r.lg ? '<span class="token-pill">' + r.lg + '</span>' : '') +
+            '</div>' +
+          '</div>';
         applyTokens(card.querySelector('.candidate-stage'), opt, state.locale);
         grid.appendChild(card);
       });
-    }
-    paint();
-
-    function bind(group, key, target) {
-      chrome.querySelector(group).querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          chrome.querySelector(group).querySelectorAll('button').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          state[target] = btn.dataset[key];
-          paint();
+      // bind pick buttons
+      grid.querySelectorAll('[data-pick-idx]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          state.selected = parseInt(btn.dataset.pickIdx, 10);
+          paintGrid();
+          paintBar();
         });
       });
     }
-    bind('#cmp-surface',  'surface',  'surface');
-    bind('#cmp-strategy', 'strategy', 'strategy');
-    bind('#cmp-icon',     'icon',     'iconSet');
-    bind('#cmp-locale',   'locale',   'locale');
 
-    document.title = C.title || 'Design Compare';
+    function buildPrompt() {
+      if (state.selected === null) return '';
+      const T = tt(state.locale);
+      const opt = C.options[state.selected];
+      const c = opt.colors, f = opt.fonts || {}, r = opt.radius || {};
+      const lines = [
+        T.promptCompareIntro(opt.label, opt.subtitle),
+        '- Family: ' + (opt.family || 'unset'),
+        '- Primary: ' + c.primary + (c.primaryHover ? ' / hover ' + c.primaryHover : ''),
+        '- Heading: ' + (f.heading || 'system') + ' / Body: ' + (f.body || 'system'),
+        '- Radius: ' + (r.sm || '?') + ' / ' + (r.md || '?') + (r.lg ? ' / ' + r.lg : ''),
+        '- Container: ' + state.strategy + ' / Icons: ' + state.iconSet + ' / Surface previewed: ' + state.surface + ' / Locale: ' + state.locale,
+        '',
+        T.promptCompareUse
+      ];
+      return lines.join('\n');
+    }
+
+    function paintBar() {
+      const T = tt(state.locale);
+      const copy = bar.querySelector('#bar-copy');
+      const text = bar.querySelector('#bar-text');
+      if (state.selected === null) {
+        bar.classList.remove('visible');
+        return;
+      }
+      const opt = C.options[state.selected];
+      text.innerHTML = T.barSelected(opt.label, opt.subtitle);
+      copy.textContent = T.copyPrompt;
+      copy.classList.remove('copied');
+      bar.classList.add('visible');
+    }
+    bar.querySelector('#bar-copy').addEventListener('click', () => {
+      const T = tt(state.locale);
+      navigator.clipboard.writeText(buildPrompt()).then(() => {
+        const copy = bar.querySelector('#bar-copy');
+        copy.textContent = T.copied;
+        copy.classList.add('copied');
+        setTimeout(() => {
+          copy.textContent = T.copyPrompt;
+          copy.classList.remove('copied');
+        }, 1800);
+      });
+    });
+
+    function attachChromeBindings() {
+      function bind(group, key, target, after) {
+        chrome.querySelector(group).querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            chrome.querySelector(group).querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state[target] = btn.dataset[key];
+            if (after) after();
+            paintGrid();
+            paintBar();
+          });
+        });
+      }
+      bind('#cmp-surface',  'surface',  'surface');
+      bind('#cmp-strategy', 'strategy', 'strategy');
+      bind('#cmp-icon',     'icon',     'iconSet');
+      bind('#cmp-locale',   'locale',   'locale', () => {
+        loadFonts(fonts, state.locale);
+        paintChrome();    // re-render chrome with new UI language
+      });
+    }
+
+    paintChrome();
+    paintGrid();
+    document.title = C.title || (tt(state.locale).compareTitle);
   }
 
   // ================== FULL MODE ==================
@@ -971,42 +1206,6 @@
 
     const chrome = document.createElement('div');
     chrome.className = 'chrome-bar';
-    chrome.innerHTML = `
-      <div class="chrome-title">${C.name || 'Design System'} ${C.family ? `<small>· ${C.family}</small>` : ''}</div>
-      <span class="chrome-label">Surface</span>
-      <div class="chrome-group" id="full-surface">${surfaceList.map(s => `<button class="chrome-btn ${s.id===state.surface?'active':''}" data-surface="${s.id}">${s.label}</button>`).join('')}</div>
-      <span class="chrome-label">Container</span>
-      <div class="chrome-group" id="full-strategy">${STRATEGIES.map(s => `<button class="chrome-btn ${s.id===state.strategy?'active':''}" data-strategy="${s.id}">${s.label}</button>`).join('')}</div>
-      <span class="chrome-label">Icons</span>
-      <div class="chrome-group" id="full-icon">${ICON_SETS.map(s => `<button class="chrome-btn ${s.id===state.iconSet?'active':''}" data-icon="${s.id}">${s.label}</button>`).join('')}</div>
-      <span class="chrome-label">Gradient</span>
-      <div class="chrome-group" id="full-gradient">
-        <button class="chrome-btn ${state.gradient==='none'?'active':''}" data-gradient="none">None</button>
-        <button class="chrome-btn ${state.gradient==='subtle'?'active':''}" data-gradient="subtle">Subtle</button>
-        <button class="chrome-btn ${state.gradient==='expressive'?'active':''}" data-gradient="expressive">Expressive</button>
-      </div>
-      <span class="chrome-label">Texture</span>
-      <div class="chrome-group" id="full-texture">
-        <button class="chrome-btn ${state.texture==='none'?'active':''}" data-texture="none">None</button>
-        <button class="chrome-btn ${state.texture==='noise'?'active':''}" data-texture="noise">Noise</button>
-        <button class="chrome-btn ${state.texture==='dot-grid'?'active':''}" data-texture="dot-grid">Dot</button>
-        <button class="chrome-btn ${state.texture==='paper'?'active':''}" data-texture="paper">Paper</button>
-        <button class="chrome-btn ${state.texture==='scan-lines'?'active':''}" data-texture="scan-lines">Scan</button>
-      </div>
-      <span class="chrome-label">Locale</span>
-      <div class="chrome-group" id="full-locale">${LOCALES.map(s => `<button class="chrome-btn ${s.id===state.locale?'active':''}" data-locale="${s.id}">${s.label}</button>`).join('')}</div>
-      <span class="chrome-label">Viewport</span>
-      <div class="chrome-group" id="full-viewport">
-        <button class="chrome-btn active" data-viewport="desktop">Desktop</button>
-        <button class="chrome-btn" data-viewport="tablet">Tablet</button>
-        <button class="chrome-btn" data-viewport="mobile">Mobile</button>
-      </div>
-      <span class="chrome-label">Theme</span>
-      <div class="chrome-group" id="full-theme">
-        <button class="chrome-btn active" data-theme="light">Light</button>
-        <button class="chrome-btn" data-theme="dark" ${C.colors.dark ? '' : 'disabled title="No dark tokens defined in config"'}>Dark</button>
-      </div>
-    `;
     root.appendChild(chrome);
 
     const stage = document.createElement('div');
@@ -1016,38 +1215,134 @@
     stage.appendChild(frame);
     root.appendChild(stage);
 
+    function localizedStrategyLabel(id) {
+      const T = tt(state.locale);
+      return ({border:T.sBorder, tinted:T.sTinted, elevation:T.sElevation, divider:T.sDivider, none:T.sNone})[id] || id;
+    }
+
+    function paintChrome() {
+      const T = tt(state.locale);
+      chrome.innerHTML =
+        '<div class="chrome-title">' + (C.name || T.designSystem) + ' ' + (C.family ? '<small>· ' + C.family + '</small>' : '') + '</div>' +
+        '<span class="chrome-label">' + T.lSurface + '</span>' +
+        '<div class="chrome-group" id="full-surface">' + surfaceList.map(s =>
+          '<button class="chrome-btn ' + (s.id===state.surface?'active':'') + '" data-surface="' + s.id + '">' + s.label + '</button>'
+        ).join('') + '</div>' +
+        '<span class="chrome-label">' + T.lContainer + '</span>' +
+        '<div class="chrome-group" id="full-strategy">' + STRATEGIES.map(s =>
+          '<button class="chrome-btn ' + (s.id===state.strategy?'active':'') + '" data-strategy="' + s.id + '">' + localizedStrategyLabel(s.id) + '</button>'
+        ).join('') + '</div>' +
+        '<span class="chrome-label">' + T.lIcons + '</span>' +
+        '<div class="chrome-group" id="full-icon">' + ICON_SETS.map(s =>
+          '<button class="chrome-btn ' + (s.id===state.iconSet?'active':'') + '" data-icon="' + s.id + '">' + s.label + '</button>'
+        ).join('') + '</div>' +
+        '<span class="chrome-label">' + T.lGradient + '</span>' +
+        '<div class="chrome-group" id="full-gradient">' +
+          '<button class="chrome-btn ' + (state.gradient==='none'?'active':'') + '" data-gradient="none">' + T.gNone + '</button>' +
+          '<button class="chrome-btn ' + (state.gradient==='subtle'?'active':'') + '" data-gradient="subtle">' + T.gSubtle + '</button>' +
+          '<button class="chrome-btn ' + (state.gradient==='expressive'?'active':'') + '" data-gradient="expressive">' + T.gExpressive + '</button>' +
+        '</div>' +
+        '<span class="chrome-label">' + T.lTexture + '</span>' +
+        '<div class="chrome-group" id="full-texture">' +
+          '<button class="chrome-btn ' + (state.texture==='none'?'active':'') + '" data-texture="none">' + T.tNone + '</button>' +
+          '<button class="chrome-btn ' + (state.texture==='noise'?'active':'') + '" data-texture="noise">' + T.tNoise + '</button>' +
+          '<button class="chrome-btn ' + (state.texture==='dot-grid'?'active':'') + '" data-texture="dot-grid">' + T.tDot + '</button>' +
+          '<button class="chrome-btn ' + (state.texture==='paper'?'active':'') + '" data-texture="paper">' + T.tPaper + '</button>' +
+          '<button class="chrome-btn ' + (state.texture==='scan-lines'?'active':'') + '" data-texture="scan-lines">' + T.tScan + '</button>' +
+        '</div>' +
+        '<span class="chrome-label">' + T.lLocale + '</span>' +
+        '<div class="chrome-group" id="full-locale">' + LOCALES.map(s =>
+          '<button class="chrome-btn ' + (s.id===state.locale?'active':'') + '" data-locale="' + s.id + '">' + s.label + '</button>'
+        ).join('') + '</div>' +
+        '<span class="chrome-label">' + T.lViewport + '</span>' +
+        '<div class="chrome-group" id="full-viewport">' +
+          '<button class="chrome-btn ' + (state.viewport==='desktop'?'active':'') + '" data-viewport="desktop">' + T.vDesktop + '</button>' +
+          '<button class="chrome-btn ' + (state.viewport==='tablet'?'active':'')  + '" data-viewport="tablet">'  + T.vTablet  + '</button>' +
+          '<button class="chrome-btn ' + (state.viewport==='mobile'?'active':'')  + '" data-viewport="mobile">'  + T.vMobile  + '</button>' +
+        '</div>' +
+        '<span class="chrome-label">' + T.lTheme + '</span>' +
+        '<div class="chrome-group" id="full-theme">' +
+          '<button class="chrome-btn ' + (!state.darkMode?'active':'') + '" data-theme="light">' + T.thLight + '</button>' +
+          '<button class="chrome-btn ' + (state.darkMode?'active':'')  + '" data-theme="dark"' + (C.colors.dark ? '' : ' disabled title="' + T.noDarkTokens + '"') + '>' + T.thDark + '</button>' +
+        '</div>' +
+        '<button class="chrome-copy" id="full-copy">' + T.copyConfig + '</button>';
+
+      attachChromeBindings();
+    }
+
     function paint() {
-      frame.className = `full-frame stage-root viewport-${state.viewport} strategy-${state.strategy} locale-${state.locale}` +
-        ` decoration-gradient-${state.gradient} decoration-texture-${state.texture}`;
+      frame.className = 'full-frame stage-root viewport-' + state.viewport + ' strategy-' + state.strategy + ' locale-' + state.locale +
+        ' decoration-gradient-' + state.gradient + ' decoration-texture-' + state.texture;
       const c = { ...C.colors };
       if (state.darkMode && C.colors.dark) Object.assign(c, C.colors.dark);
       applyTokens(frame, { colors: c, fonts: C.fonts, radius: C.radius }, state.locale);
       frame.innerHTML = renderSurface(state.surface, state.locale, state.iconSet);
     }
-    paint();
 
-    function bind(group, key, target, after) {
-      chrome.querySelector(group).querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          if (btn.disabled) return;
-          chrome.querySelector(group).querySelectorAll('button').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          state[target] = btn.dataset[key];
-          if (after) after(btn);
-          paint();
-        });
-      });
+    function buildConfigPrompt() {
+      const T = tt(state.locale);
+      const c = C.colors, f = C.fonts || {}, r = C.radius || {};
+      return [
+        T.promptFullIntro(C.name),
+        '- Family: ' + (C.family || 'unset'),
+        '- Surface previewed: ' + state.surface + ' / Viewport: ' + state.viewport + ' / Theme: ' + (state.darkMode ? 'dark' : 'light'),
+        '- Container strategy: ' + state.strategy,
+        '- Icon system: ' + state.iconSet,
+        '- Decoration: gradients=' + state.gradient + ' / textures=' + state.texture,
+        '- Locale: ' + state.locale,
+        '- Primary: ' + c.primary + (c.primaryHover ? ' / hover ' + c.primaryHover : ''),
+        '- Heading: ' + (f.heading || 'system') + ' / Body: ' + (f.body || 'system') + (f.mono ? ' / Mono: ' + f.mono : ''),
+        '- Radius: ' + (r.sm || '?') + ' / ' + (r.md || '?') + (r.lg ? ' / ' + r.lg : ''),
+        '- Spacing: ' + (C.spacing || 'unset') + ' / Motion: ' + (C.motion || 'unset'),
+        '',
+        T.promptFullNext
+      ].join('\n');
     }
-    bind('#full-surface',   'surface',   'surface');
-    bind('#full-strategy',  'strategy',  'strategy');
-    bind('#full-icon',      'icon',      'iconSet');
-    bind('#full-gradient',  'gradient',  'gradient');
-    bind('#full-texture',   'texture',   'texture');
-    bind('#full-locale',    'locale',    'locale', () => loadFonts([C.fonts.heading, C.fonts.body, C.fonts.mono], state.locale));
-    bind('#full-viewport',  'viewport',  'viewport');
-    bind('#full-theme',     'theme',     'darkMode', (btn) => { state.darkMode = btn.dataset.theme === 'dark'; });
 
-    document.title = `Design Preview — ${C.name || 'Project'}`;
+    function attachChromeBindings() {
+      function bind(group, key, target, after) {
+        chrome.querySelector(group).querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            chrome.querySelector(group).querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state[target] = btn.dataset[key];
+            if (after) after(btn);
+            paint();
+          });
+        });
+      }
+      bind('#full-surface',   'surface',   'surface');
+      bind('#full-strategy',  'strategy',  'strategy');
+      bind('#full-icon',      'icon',      'iconSet');
+      bind('#full-gradient',  'gradient',  'gradient');
+      bind('#full-texture',   'texture',   'texture');
+      bind('#full-locale',    'locale',    'locale', () => {
+        loadFonts([C.fonts.heading, C.fonts.body, C.fonts.mono], state.locale);
+        paintChrome(); // re-render chrome with new UI language
+      });
+      bind('#full-viewport',  'viewport',  'viewport');
+      bind('#full-theme',     'theme',     'darkMode', (btn) => { state.darkMode = btn.dataset.theme === 'dark'; });
+
+      const copyBtn = chrome.querySelector('#full-copy');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          const T = tt(state.locale);
+          navigator.clipboard.writeText(buildConfigPrompt()).then(() => {
+            copyBtn.textContent = T.copied;
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+              copyBtn.textContent = T.copyConfig;
+              copyBtn.classList.remove('copied');
+            }, 1800);
+          });
+        });
+      }
+    }
+
+    paintChrome();
+    paint();
+    document.title = 'Design Preview — ' + (C.name || 'Project');
   }
 })();
 </script>
