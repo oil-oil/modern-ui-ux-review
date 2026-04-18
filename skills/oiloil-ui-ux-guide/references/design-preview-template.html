@@ -1,25 +1,27 @@
 <!--
-  Design Preview Template (Config-Driven, Style-Neutral)
-  ======================================================
+  Design Preview Template (Config-Driven, Style-Neutral, Extended)
+  ================================================================
   STATIC template. Do NOT modify per-user.
 
   Goals:
   1. The template chrome is intentionally neutral so it never overwhelms
-     the design being previewed. No cyberpunk arena, no 3D hover,
-     no decorative gradients.
+     the design being previewed.
   2. Compare mode shows multiple candidate token sets side by side,
-     each rendering the same realistic micro-surface so taste is
-     comparable, not just decoration.
+     each rendering the same realistic micro-surface.
   3. Full mode renders the full system across multiple SURFACES
-     (dashboard, marketing, content, form, pricing), with a viewport
-     switcher and dark-mode toggle. The user can pressure-test the
-     tokens on the formats their project actually has.
+     (dashboard, marketing, content, form, pricing) with switchers for:
+     - container strategy (border / tinted-surface / elevation / divider / none)
+     - icon set (lucide / phosphor / heroicons — inline SVG)
+     - decoration (gradients / textures on/off)
+     - viewport (desktop / tablet / mobile)
+     - theme (light / dark)
+     - locale (en / zh-CN / ja) — affects demo copy and font fallback
 
   Usage:
   1. cp this file to /tmp/design-preview.html (first time only)
   2. Write /tmp/design-config.js with window.__DESIGN_CONFIG__ = {...}
   3. open /tmp/design-preview.html
-  4. To iterate: rewrite design-config.js only, user refreshes.
+  4. Iterate by rewriting design-config.js only; user refreshes.
 
   Two modes:
 
@@ -28,33 +30,25 @@
     mode: "compare",
     title: "Pick whichever feels closest",
     subtitle: "Optional secondary line",
-    surface: "dashboard",   // shared surface every option renders
-                            // dashboard | marketing | content | form | pricing
-    options: [
-      { label: "A",
-        family: "modern-minimal",       // optional badge
-        subtitle: "Linear / Vercel / Notion",
-        colors: { primary, primaryHover, primarySubtle,
-                  bg, surface, border,
-                  text, textSecondary, textMuted,
-                  success, warning, error, info },
-        fonts: { heading, body },
-        radius: { sm, md, lg } },
-      ...
-    ]
+    surface: "dashboard",
+    locale: "en",                         // optional — default "en"
+    containerStrategy: "border",          // optional — default "border"
+    iconSet: "lucide",                    // optional — default "lucide"
+    options: [ { label, family, subtitle, colors, fonts, radius }, ... ]
   }
 
   FULL mode:
   {
     mode: "full",
     name: "ProjectName",
-    family: "modern-minimal",            // optional badge
+    family: "modern-minimal",
     surfaces: ["dashboard","marketing","content","form","pricing"],
     defaultSurface: "dashboard",
-    colors: { primary, primaryHover, primarySubtle, secondary,
-              bg, surface, border, text, textSecondary, textMuted,
-              success, warning, error, info,
-              dark: { bg, surface, border, text, textSecondary, textMuted } },
+    containerStrategy: "border",          // initial value, user can switch
+    iconSystem: { set: "lucide", weight: "regular", treatment: "monochrome" },
+    decoration: { gradients: "none", textures: "none", motifs: "none" },
+    locale: { primary: "en", secondary: [] },
+    colors: { ..., dark: {...} },
     fonts: { heading, body, mono },
     radius: { sm, md, lg },
     shadows: { sm, md, lg },
@@ -80,92 +74,64 @@
     line-height: 1.5;
   }
 
-  /* ===== NEUTRAL CHROME (shared by both modes) ===== */
+  /* ===== NEUTRAL CHROME ===== */
   .chrome-bar {
     position: sticky; top: 0; z-index: 100;
     background: #ffffff;
     border-bottom: 1px solid #e5e5e5;
-    padding: 12px 24px;
-    display: flex; align-items: center; gap: 16px;
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 12px;
     flex-wrap: wrap;
   }
   .chrome-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-right: auto; }
   .chrome-title small { color: #888; font-weight: 400; margin-left: 8px; }
-  .chrome-group { display: flex; align-items: center; gap: 4px; padding: 2px; background: #f5f5f5; border-radius: 6px; }
+  .chrome-group { display: flex; align-items: center; gap: 2px; padding: 2px; background: #f5f5f5; border-radius: 6px; }
   .chrome-btn {
     background: transparent; border: none;
-    padding: 6px 10px; font-size: 12px; font-weight: 500;
+    padding: 5px 9px; font-size: 11px; font-weight: 500;
     color: #555; cursor: pointer; border-radius: 4px;
     transition: background 120ms, color 120ms;
     font-family: inherit;
   }
-  .chrome-btn:hover { color: #1a1a1a; }
+  .chrome-btn:hover:not(:disabled) { color: #1a1a1a; }
   .chrome-btn.active { background: #ffffff; color: #1a1a1a; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-  .chrome-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-right: 4px; }
+  .chrome-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .chrome-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-right: 2px; }
 
   .stage {
-    padding: 32px 24px 80px;
+    padding: 28px 20px 80px;
     background: #f5f5f5;
-    min-height: calc(100vh - 60px);
+    min-height: calc(100vh - 56px);
   }
 
   /* ===== COMPARE MODE ===== */
-  .compare-header { max-width: 1400px; margin: 0 auto 24px; padding: 8px 0; }
-  .compare-header h1 {
-    font-size: 22px; font-weight: 600; color: #1a1a1a;
-    letter-spacing: -0.01em; margin-bottom: 4px;
-  }
-  .compare-header p { font-size: 14px; color: #666; }
-
+  .compare-header { max-width: 1400px; margin: 0 auto 20px; padding: 6px 0; }
+  .compare-header h1 { font-size: 20px; font-weight: 600; color: #1a1a1a; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .compare-header p { font-size: 13px; color: #666; }
   .compare-grid {
     max-width: 1400px; margin: 0 auto;
-    display: grid; gap: 24px;
+    display: grid; gap: 20px;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   }
   .candidate {
-    background: #ffffff;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex; flex-direction: column;
+    background: #ffffff; border: 1px solid #e5e5e5; border-radius: 8px;
+    overflow: hidden; display: flex; flex-direction: column;
   }
-  .candidate-head {
-    padding: 14px 16px;
-    border-bottom: 1px solid #e5e5e5;
-    display: flex; align-items: center; gap: 10px;
-  }
+  .candidate-head { padding: 12px 14px; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; gap: 10px; }
   .candidate-label {
     font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
-    background: #1a1a1a; color: #fff;
-    padding: 3px 7px; border-radius: 3px;
+    background: #1a1a1a; color: #fff; padding: 3px 7px; border-radius: 3px;
     min-width: 22px; text-align: center;
   }
   .candidate-meta { flex: 1; min-width: 0; }
   .candidate-family { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
   .candidate-subtitle { font-size: 13px; color: #1a1a1a; font-weight: 500; margin-top: 1px; }
-  .candidate-stage {
-    padding: 0;
-    background: var(--c-bg);
-    color: var(--c-text);
-    font-family: var(--f-body), -apple-system, sans-serif;
-    border-bottom: 1px solid #e5e5e5;
-    overflow: hidden;
-  }
-  .candidate-tokens {
-    padding: 12px 16px;
-    background: #fafafa;
-    display: flex; flex-direction: column; gap: 8px;
-  }
+  .candidate-stage { padding: 0; background: var(--c-bg); color: var(--c-text); border-bottom: 1px solid #e5e5e5; overflow: hidden; }
+  .candidate-tokens { padding: 10px 14px; background: #fafafa; display: flex; flex-direction: column; gap: 6px; }
   .token-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #666; }
   .token-row strong { font-weight: 600; color: #444; min-width: 56px; }
   .token-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.08); }
-  .token-pills { display: flex; gap: 4px; flex-wrap: wrap; }
-  .token-pill {
-    background: #fff; border: 1px solid #e5e5e5;
-    padding: 1px 6px; border-radius: 3px;
-    font-size: 10px; color: #555;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  }
+  .token-pill { background: #fff; border: 1px solid #e5e5e5; padding: 1px 6px; border-radius: 3px; font-size: 10px; color: #555; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
 
   /* ===== FULL MODE ===== */
   .full-frame {
@@ -173,82 +139,181 @@
     margin: 0 auto;
     background: var(--c-bg);
     color: var(--c-text);
-    font-family: var(--f-body), -apple-system, sans-serif;
     border: 1px solid #e5e5e5;
     border-radius: 8px;
     overflow: hidden;
     transition: max-width 200ms ease;
     box-shadow: 0 4px 24px rgba(0,0,0,0.04);
   }
-  .full-frame.dark-mode { color-scheme: dark; }
-  .viewport-tablet { --viewport-width: 820px; }
-  .viewport-mobile { --viewport-width: 390px; }
+  .viewport-tablet  { --viewport-width: 820px; }
+  .viewport-mobile  { --viewport-width: 390px; }
 
-  /* ====== Surface: shared utilities (unstyled by chrome — uses --c-* tokens from candidate / full) ====== */
-
-  /* DASHBOARD surface */
-  .s-dash { display: flex; min-height: 480px; }
-  .s-dash-side {
-    width: 200px; background: var(--c-surface); border-right: 1px solid var(--c-border);
-    padding: 16px 12px; flex-shrink: 0;
+  /* === SURFACE STAGE root: must be respected by all surfaces === */
+  .stage-root {
+    font-family: var(--f-body);
+    color: var(--c-text);
+    background: var(--c-bg);
   }
-  .s-dash-side-title { font-family: var(--f-heading); font-weight: 700; font-size: 14px; color: var(--c-text); margin-bottom: 12px; padding: 0 8px; letter-spacing: -0.01em; }
+
+  /* ====== Container strategy CSS variants ====== */
+  /* Each surface uses .surface-card / .surface-row / .surface-section / .surface-pane.
+     A class on the stage controls how those render. Defaults to border. */
+
+  /* Border (default) */
+  .strategy-border .surface-card,
+  .strategy-border .surface-pane {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-md);
+  }
+  .strategy-border .surface-row {
+    border-bottom: 1px solid var(--c-border);
+  }
+  .strategy-border .surface-row:last-child { border-bottom: none; }
+
+  /* Tinted surface — no border, surface offset from bg */
+  .strategy-tinted .surface-card,
+  .strategy-tinted .surface-pane {
+    background: var(--c-surface);
+    border-radius: var(--r-md);
+    border: none;
+  }
+  .strategy-tinted .surface-row {
+    border-bottom: 1px solid color-mix(in srgb, var(--c-border) 50%, transparent);
+  }
+  .strategy-tinted .surface-row:last-child { border-bottom: none; }
+
+  /* Elevation — shadow does the work */
+  .strategy-elevation .surface-card,
+  .strategy-elevation .surface-pane {
+    background: var(--c-surface);
+    border: none;
+    border-radius: var(--r-md);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .strategy-elevation .surface-row { border-bottom: 1px solid color-mix(in srgb, var(--c-border) 30%, transparent); }
+  .strategy-elevation .surface-row:last-child { border-bottom: none; }
+
+  /* Divider — no card chrome, only horizontal dividers between rows */
+  .strategy-divider .surface-card,
+  .strategy-divider .surface-pane {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0 !important;
+  }
+  .strategy-divider .surface-row {
+    border-bottom: 1px solid var(--c-border);
+  }
+  .strategy-divider .surface-row:last-child { border-bottom: none; }
+  .strategy-divider .surface-section {
+    border-top: 1px solid var(--c-border);
+    padding-top: 24px;
+    margin-top: 24px;
+  }
+
+  /* None — pure spacing */
+  .strategy-none .surface-card,
+  .strategy-none .surface-pane {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .strategy-none .surface-row { border-bottom: none; padding-top: 14px; padding-bottom: 14px; }
+  .strategy-none .surface-section { margin-top: 40px; }
+
+  /* ===== Decoration: gradients ===== */
+  .decoration-gradient-subtle .deco-gradient-target {
+    background-image: linear-gradient(135deg, var(--c-primary-subtle) 0%, transparent 70%);
+  }
+  .decoration-gradient-expressive .deco-gradient-target {
+    background-image: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-hover) 50%, color-mix(in srgb, var(--c-primary) 60%, var(--c-bg)) 100%);
+    color: #fff;
+  }
+  .decoration-gradient-expressive .deco-gradient-target * { color: inherit !important; }
+
+  /* ===== Decoration: textures ===== */
+  .decoration-texture-noise .deco-texture-target {
+    background-image:
+      var(--bg-image, none),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  .decoration-texture-dot-grid .deco-texture-target {
+    background-image:
+      radial-gradient(circle, color-mix(in srgb, var(--c-text) 15%, transparent) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  .decoration-texture-paper .deco-texture-target {
+    background-image:
+      linear-gradient(0deg, color-mix(in srgb, var(--c-text) 3%, transparent), transparent 30%, transparent 70%, color-mix(in srgb, var(--c-text) 3%, transparent));
+  }
+  .decoration-texture-scan-lines .deco-texture-target {
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0, transparent 2px, color-mix(in srgb, var(--c-text) 6%, transparent) 2px, color-mix(in srgb, var(--c-text) 6%, transparent) 3px);
+  }
+
+  /* ===== Surface-specific layouts (use surface-* utility classes) ===== */
+
+  /* DASHBOARD */
+  .s-dash { display: flex; min-height: 480px; }
+  .s-dash-side { width: 200px; padding: 16px 12px; flex-shrink: 0; }
+  .strategy-border .s-dash-side, .strategy-tinted .s-dash-side {
+    background: var(--c-surface);
+    border-right: 1px solid var(--c-border);
+  }
+  .strategy-elevation .s-dash-side {
+    background: var(--c-surface);
+    box-shadow: 1px 0 0 0 var(--c-border);
+  }
+  .strategy-divider .s-dash-side, .strategy-none .s-dash-side {
+    background: transparent;
+    border-right: 1px solid var(--c-border);
+  }
+  .s-dash-side-title { font-family: var(--f-heading); font-weight: 700; font-size: 14px; color: var(--c-text); margin-bottom: 12px; padding: 0 8px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; }
   .s-dash-nav { display: flex; flex-direction: column; gap: 2px; }
-  .s-dash-nav-item { padding: 7px 8px; border-radius: var(--r-sm); font-size: 13px; color: var(--c-text-sec); cursor: pointer; }
+  .s-dash-nav-item { padding: 7px 8px; border-radius: var(--r-sm); font-size: 13px; color: var(--c-text-sec); cursor: pointer; display: flex; align-items: center; gap: 8px; }
   .s-dash-nav-item.active { background: var(--c-primary-subtle); color: var(--c-primary); font-weight: 600; }
   .s-dash-main { flex: 1; padding: 24px; min-width: 0; }
   .s-dash-h1 { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
   .s-dash-sub { font-size: 13px; color: var(--c-text-muted); margin-bottom: 20px; }
   .s-dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .s-dash-stat {
-    background: var(--c-surface); border: 1px solid var(--c-border);
-    border-radius: var(--r-md); padding: 14px;
-  }
+  .s-dash-stat { padding: 14px; }
   .s-dash-stat-label { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-bottom: 6px; }
   .s-dash-stat-val { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
   .s-dash-stat-trend { font-size: 11px; color: var(--c-success); margin-top: 2px; }
-  .s-dash-table {
-    background: var(--c-surface); border: 1px solid var(--c-border);
-    border-radius: var(--r-md); overflow: hidden;
-  }
-  .s-dash-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--c-border); align-items: center; font-size: 13px; }
-  .s-dash-row:last-child { border-bottom: none; }
-  .s-dash-row-head { background: var(--c-bg); font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
-  .s-dash-badge { font-size: 11px; padding: 2px 7px; border-radius: 9999px; font-weight: 600; }
+  .s-dash-table { overflow: hidden; }
+  .s-dash-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; padding: 11px 14px; align-items: center; font-size: 13px; }
+  .s-dash-row-head { background: color-mix(in srgb, var(--c-text) 4%, transparent); font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .strategy-divider .s-dash-row, .strategy-none .s-dash-row { padding-left: 0; padding-right: 0; }
+  .s-dash-badge { font-size: 11px; padding: 2px 7px; border-radius: 9999px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
   .s-dash-badge-s { background: color-mix(in srgb, var(--c-success) 12%, transparent); color: var(--c-success); }
   .s-dash-badge-w { background: color-mix(in srgb, var(--c-warning) 12%, transparent); color: var(--c-warning); }
   .s-dash-badge-i { background: color-mix(in srgb, var(--c-info) 12%, transparent); color: var(--c-info); }
 
-  /* MARKETING surface */
-  .s-mkt { padding: 56px 32px 64px; text-align: left; min-height: 480px; }
+  /* MARKETING */
+  .s-mkt { padding: 56px 32px 64px; min-height: 480px; position: relative; }
   .s-mkt-eyebrow { font-size: 12px; color: var(--c-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
   .s-mkt-h1 { font-family: var(--f-heading); font-size: clamp(32px, 5vw, 56px); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 18px; max-width: 720px; }
-  .s-mkt-lead { font-size: 17px; color: var(--c-text-sec); max-width: 580px; line-height: 1.5; margin-bottom: 24px; }
+  .s-mkt-lead { font-size: 17px; color: var(--c-text-sec); max-width: 580px; margin-bottom: 24px; }
   .s-mkt-cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 56px; }
   .s-mkt-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; padding-top: 40px; border-top: 1px solid var(--c-border); }
-  .s-mkt-feat-h { font-family: var(--f-heading); font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-  .s-mkt-feat-p { font-size: 14px; color: var(--c-text-sec); line-height: 1.5; }
+  .s-mkt-feat { display: flex; flex-direction: column; gap: 8px; }
+  .s-mkt-feat-icon { color: var(--c-primary); }
+  .s-mkt-feat-h { font-family: var(--f-heading); font-size: 16px; font-weight: 600; }
+  .s-mkt-feat-p { font-size: 14px; color: var(--c-text-sec); }
+  .strategy-none .s-mkt-features, .strategy-divider .s-mkt-features { border-top-color: var(--c-border); }
 
-  /* CONTENT (long-form) surface */
+  /* CONTENT */
   .s-art { padding: 48px 32px 64px; max-width: 720px; margin: 0 auto; min-height: 480px; }
   .s-art-meta { font-size: 12px; color: var(--c-text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
   .s-art-h1 { font-family: var(--f-heading); font-size: clamp(28px, 4vw, 40px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 20px; }
-  .s-art p { font-size: 17px; line-height: 1.65; color: var(--c-text); margin-bottom: 18px; }
-  .s-art p strong { color: var(--c-text); font-weight: 600; }
-  .s-art-pull {
-    border-left: 3px solid var(--c-primary);
-    padding-left: 20px; margin: 28px 0;
-    font-family: var(--f-heading); font-size: 22px; font-weight: 600;
-    line-height: 1.35; color: var(--c-text);
-    letter-spacing: -0.01em;
-  }
-  .s-art-figure {
-    background: var(--c-surface); border: 1px solid var(--c-border);
-    border-radius: var(--r-md); padding: 24px; margin: 28px 0;
-    font-size: 13px; color: var(--c-text-muted); text-align: center;
-  }
+  .s-art p { font-size: 17px; line-height: var(--body-line-height, 1.65); color: var(--c-text); margin-bottom: 18px; }
+  .s-art-pull { border-left: 3px solid var(--c-primary); padding-left: 20px; margin: 28px 0; font-family: var(--f-heading); font-size: 22px; font-weight: 600; line-height: 1.35; color: var(--c-text); }
+  .s-art-figure { padding: 24px; margin: 28px 0; font-size: 13px; color: var(--c-text-muted); text-align: center; }
 
-  /* FORM (settings) surface */
+  /* FORM */
   .s-form { padding: 32px 32px 48px; max-width: 640px; margin: 0 auto; min-height: 480px; }
   .s-form-h1 { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
   .s-form-sub { font-size: 13px; color: var(--c-text-muted); margin-bottom: 24px; }
@@ -256,19 +321,12 @@
   .s-form-label { display: block; font-size: 13px; font-weight: 600; color: var(--c-text); margin-bottom: 6px; }
   .s-form-help { font-size: 12px; color: var(--c-text-muted); margin-top: 4px; }
   .s-form-input, .s-form-select, .s-form-textarea {
-    width: 100%;
-    background: var(--c-bg);
-    color: var(--c-text);
-    border: 1px solid var(--c-border);
-    border-radius: var(--r-sm);
-    padding: 8px 12px;
-    font-size: 14px; font-family: inherit;
+    width: 100%; background: var(--c-bg); color: var(--c-text);
+    border: 1px solid var(--c-border); border-radius: var(--r-sm);
+    padding: 8px 12px; font-size: 14px; font-family: inherit;
     outline: none; transition: border-color 120ms, box-shadow 120ms;
   }
-  .s-form-input:focus, .s-form-select:focus, .s-form-textarea:focus {
-    border-color: var(--c-primary);
-    box-shadow: 0 0 0 3px var(--c-primary-subtle);
-  }
+  .s-form-input:focus, .s-form-select:focus, .s-form-textarea:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px var(--c-primary-subtle); }
   .s-form-textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
   .s-form-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-top: 1px solid var(--c-border); }
   .s-form-toggle-row:last-of-type { border-bottom: 1px solid var(--c-border); margin-bottom: 24px; }
@@ -276,19 +334,15 @@
   .s-form-toggle-info span { font-size: 12px; color: var(--c-text-muted); }
   .s-form-actions { display: flex; gap: 10px; padding-top: 16px; }
 
-  /* PRICING surface */
+  /* PRICING */
   .s-price { padding: 48px 32px 56px; min-height: 480px; }
   .s-price-h1 { font-family: var(--f-heading); font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.02em; text-align: center; margin-bottom: 8px; }
   .s-price-sub { font-size: 15px; color: var(--c-text-sec); text-align: center; max-width: 520px; margin: 0 auto 36px; }
   .s-price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; max-width: 960px; margin: 0 auto; }
-  .s-price-card {
-    background: var(--c-surface); border: 1px solid var(--c-border);
-    border-radius: var(--r-md); padding: 24px;
-    display: flex; flex-direction: column; gap: 16px;
-  }
-  .s-price-card.featured { border-color: var(--c-primary); position: relative; }
+  .s-price-card { padding: 24px; display: flex; flex-direction: column; gap: 16px; position: relative; }
+  .s-price-card.featured { outline: 2px solid var(--c-primary); }
   .s-price-card.featured::before {
-    content: 'Most popular'; position: absolute; top: -10px; left: 24px;
+    content: attr(data-popular); position: absolute; top: -10px; left: 24px;
     background: var(--c-primary); color: #fff;
     font-size: 10px; font-weight: 700; padding: 3px 8px;
     border-radius: var(--r-sm); letter-spacing: 0.04em; text-transform: uppercase;
@@ -297,16 +351,16 @@
   .s-price-amount { font-family: var(--f-heading); font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
   .s-price-amount span { font-size: 13px; color: var(--c-text-muted); font-weight: 400; margin-left: 2px; }
   .s-price-list { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-top: 1px solid var(--c-border); }
-  .s-price-list li { font-size: 13px; color: var(--c-text-sec); padding-left: 18px; position: relative; }
-  .s-price-list li::before { content: ''; position: absolute; left: 0; top: 6px; width: 10px; height: 5px; border-left: 2px solid var(--c-primary); border-bottom: 2px solid var(--c-primary); transform: rotate(-45deg); }
+  .s-price-list li { font-size: 13px; color: var(--c-text-sec); padding-left: 24px; position: relative; }
+  .s-price-list li svg { position: absolute; left: 0; top: 1px; color: var(--c-primary); }
 
-  /* shared button + atoms */
+  /* shared atoms */
   .b-primary, .b-secondary, .b-ghost {
-    display: inline-flex; align-items: center; justify-content: center;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     padding: 8px 16px; font-size: 14px; font-weight: 600;
     border-radius: var(--r-sm); cursor: pointer; border: 1px solid transparent;
-    font-family: inherit; transition: background 120ms, color 120ms, border-color 120ms;
-    line-height: 1.4;
+    font-family: inherit; line-height: 1.4;
+    transition: background 120ms, color 120ms, border-color 120ms;
   }
   .b-primary { background: var(--c-primary); color: #fff; }
   .b-primary:hover { background: var(--c-primary-hover); }
@@ -315,7 +369,7 @@
   .b-ghost { background: transparent; color: var(--c-primary); }
   .b-lg { padding: 12px 22px; font-size: 15px; }
 
-  /* Compare-mode mini surface = simplified dashboard fragment */
+  /* Compare-mode mini surface scaling */
   .candidate-stage .s-dash { min-height: 320px; }
   .candidate-stage .s-dash-side { width: 140px; padding: 14px 10px; }
   .candidate-stage .s-dash-side-title { font-size: 12px; }
@@ -327,25 +381,31 @@
   .candidate-stage .s-dash-stat { padding: 10px; }
   .candidate-stage .s-dash-stat-val { font-size: 18px; }
   .candidate-stage .s-dash-row { font-size: 12px; padding: 8px 12px; }
-
   .candidate-stage .s-mkt { padding: 28px 20px 32px; min-height: 320px; }
   .candidate-stage .s-mkt-h1 { font-size: 24px; line-height: 1.1; margin-bottom: 12px; }
   .candidate-stage .s-mkt-lead { font-size: 14px; margin-bottom: 18px; }
   .candidate-stage .s-mkt-cta-row { margin-bottom: 28px; }
   .candidate-stage .s-mkt-features { padding-top: 20px; gap: 18px; }
-
   .candidate-stage .s-art { padding: 24px 22px; min-height: 320px; }
   .candidate-stage .s-art-h1 { font-size: 22px; margin-bottom: 14px; }
   .candidate-stage .s-art p { font-size: 14px; margin-bottom: 12px; }
   .candidate-stage .s-art-pull { font-size: 16px; margin: 18px 0; padding-left: 14px; }
-
   .candidate-stage .s-form { padding: 22px 22px 28px; min-height: 320px; }
   .candidate-stage .s-form-h1 { font-size: 18px; }
   .candidate-stage .s-form-sub { font-size: 12px; margin-bottom: 16px; }
-
   .candidate-stage .s-price { padding: 24px 18px; min-height: 320px; }
   .candidate-stage .s-price-h1 { font-size: 20px; margin-bottom: 4px; }
   .candidate-stage .s-price-sub { font-size: 13px; margin-bottom: 20px; }
+
+  /* CJK locale: bump body line-height and disable display tracking */
+  .locale-zh-CN, .locale-ja, .locale-ko {
+    --body-line-height: 1.75;
+  }
+  .locale-zh-CN .s-mkt-h1, .locale-ja .s-mkt-h1, .locale-ko .s-mkt-h1,
+  .locale-zh-CN .s-art-h1, .locale-ja .s-art-h1, .locale-ko .s-art-h1,
+  .locale-zh-CN .s-price-h1, .locale-ja .s-price-h1, .locale-ko .s-price-h1 {
+    letter-spacing: 0;
+  }
 </style>
 </head>
 <body>
@@ -363,7 +423,6 @@
   const root = document.getElementById('root');
   root.innerHTML = '';
 
-  // Surface options the user can switch between (full mode)
   const SURFACES = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'marketing', label: 'Marketing' },
@@ -372,8 +431,246 @@
     { id: 'pricing',   label: 'Pricing'   }
   ];
 
-  function loadFonts(names) {
+  const STRATEGIES = [
+    { id: 'border',         label: 'Border'   },
+    { id: 'tinted',         label: 'Tinted'   },
+    { id: 'elevation',      label: 'Elevation'},
+    { id: 'divider',        label: 'Divider'  },
+    { id: 'none',           label: 'None'     }
+  ];
+
+  const ICON_SETS = [
+    { id: 'lucide',     label: 'Lucide'    },
+    { id: 'phosphor',   label: 'Phosphor'  },
+    { id: 'heroicons',  label: 'Heroicons' }
+  ];
+
+  const LOCALES = [
+    { id: 'en',     label: 'EN'    },
+    { id: 'zh-CN',  label: '中文'  },
+    { id: 'ja',     label: '日本語'}
+  ];
+
+  // ================== INLINE SVG ICON SPRITES ==================
+  // Each set has the same conceptual icons (inbox, users, settings, billing,
+  // overview, check, plus, search), styled to match the set's voice.
+  const ICONS = {
+    lucide: {
+      // monoline 1.5px stroke, regular weight
+      overview:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+      projects:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+      team:      '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      billing:   '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+      settings:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+      check:     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+      arrow:     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+      bolt:      '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+      shield:    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+      keyboard:  '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/></svg>'
+    },
+    phosphor: {
+      // bolder geometric, 2px stroke, slight optical correction
+      overview:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-96,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,200,136Zm0,64H152V152h48v48Z"/></svg>',
+      projects:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.4A15.6,15.6,0,0,0,232,200.4V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40ZM216,200H40V88H216Z"/></svg>',
+      team:      '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M256,168a8,8,0,0,1-8,8H230.81l-19.32,30.93A16.06,16.06,0,0,1,198,216H180.41a4,4,0,0,1-3.39-6.13L191.5,184l-23-32H136.41a4,4,0,0,1-3.39-6.13L147.5,120l-23-32H103.5L88,108v40h32a16,16,0,0,1,16,16v40a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V164a16,16,0,0,1,16-16H72V108a16,16,0,0,1,3.2-9.6L89.5,80H64A40,40,0,1,1,80,40,40,40,0,1,1,80,40h128A40,40,0,1,1,224,80a40,40,0,1,1,0-40v9.5L249.6,109.4a16,16,0,0,1,3.2,9.6V160h-8a8,8,0,0,1,8,8Z"/></svg>',
+      billing:   '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224V192Z"/></svg>',
+      settings:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM199.94,154.94l-2.32,20.92a91.27,91.27,0,0,1-15.91,15.91l-20.92-2.32a8,8,0,0,0-6.85,2.81l-13.78,17.27a91.66,91.66,0,0,1-22.32,0L104.07,192.26a8,8,0,0,0-6.07-2.84l-.78,0-20.91,2.32a91.27,91.27,0,0,1-15.92-15.91l2.32-20.92a8,8,0,0,0-2.81-6.85L42.63,134.32a91.66,91.66,0,0,1,0-22.32L59.9,98.21a8,8,0,0,0,2.81-6.85L60.39,70.45A91.27,91.27,0,0,1,76.3,54.54l20.92,2.32a8,8,0,0,0,6.85-2.81l13.78-17.27a91.66,91.66,0,0,1,22.32,0l13.78,17.27a8,8,0,0,0,6.85,2.81l20.92-2.32A91.27,91.27,0,0,1,197.62,70.45l-2.32,20.92a8,8,0,0,0,2.81,6.85l17.27,13.78a91.66,91.66,0,0,1,0,22.32L198.11,148.1A8,8,0,0,0,199.94,154.94Z"/></svg>',
+      check:     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>',
+      arrow:     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>',
+      bolt:      '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M213.85,125.46l-112,120a8,8,0,0,1-13.69-7l14.66-73.33L45.19,143.13a8,8,0,0,1-3-13L154.15,10.54a8,8,0,0,1,13.69,7L153.18,90.87l57.63,22a8,8,0,0,1,3,12.61Z"/></svg>',
+      shield:    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v58.78c0,89.61,75.82,119.34,91,124.39a15.53,15.53,0,0,0,10,0c15.2-5.05,91-34.78,91-124.39V56A16,16,0,0,0,208,40Zm0,74.79c0,78.42-66.35,104.62-80,109.18-13.53-4.51-80-30.69-80-109.18V56l160,0Z"/></svg>',
+      keyboard:  '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M224,64H32A16,16,0,0,0,16,80V176a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V80A16,16,0,0,0,224,64Zm0,112H32V80H224V176ZM56,108a8,8,0,0,1,8-8h0a8,8,0,0,1,0,16h0A8,8,0,0,1,56,108Zm32,0a8,8,0,0,1,8-8h0a8,8,0,0,1,0,16h0A8,8,0,0,1,88,108Zm32,0a8,8,0,0,1,8-8h0a8,8,0,0,1,0,16h0A8,8,0,0,1,120,108Zm32,0a8,8,0,0,1,8-8h0a8,8,0,0,1,0,16h0A8,8,0,0,1,152,108Zm32,0a8,8,0,0,1,8-8h0a8,8,0,0,1,0,16h0A8,8,0,0,1,184,108ZM56,140a8,8,0,0,1,8-8h0a8,8,0,0,1,0,16h0A8,8,0,0,1,56,140Zm32,0a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,140Zm96,0a8,8,0,0,1,8-8h0a8,8,0,0,1,0,16h0A8,8,0,0,1,184,140Z"/></svg>'
+    },
+    heroicons: {
+      // outline 2px, slightly more rectangular than lucide
+      overview:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 8.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>',
+      projects:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"/></svg>',
+      team:      '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>',
+      billing:   '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>',
+      settings:  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
+      check:     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>',
+      arrow:     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>',
+      bolt:      '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>',
+      shield:    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.745 3.745 0 013.296-1.043A3.745 3.745 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.745 3.745 0 013.296 1.043 3.745 3.745 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>',
+      keyboard:  '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h.008v.008H5.25V8.25zm0 2.25h.008v.008H5.25V10.5zm0 2.25h.008v.008H5.25V12.75zm0 2.25h.008v.008H5.25v-.008zm2.25-6.75h.008v.008H7.5V8.25zm0 2.25h.008v.008H7.5V10.5zm0 2.25h.008v.008H7.5V12.75zm0 2.25h.008v.008H7.5v-.008zm2.25-6.75h.008v.008H9.75V8.25zm0 2.25h.008v.008H9.75V10.5zm0 2.25h7.5M12 8.25h.008v.008H12V8.25zm0 2.25h.008v.008H12V10.5zm2.25-2.25h.008v.008h-.008V8.25zm0 2.25h.008v.008h-.008V10.5zm2.25-2.25h.008v.008h-.008V8.25zm0 2.25h.008v.008h-.008V10.5zm2.25-2.25h.008v.008h-.008V8.25zm0 2.25h.008v.008h-.008V10.5zM3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25v9.75a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25z"/></svg>'
+    }
+  };
+
+  function icon(name, set) {
+    set = set || (window.__currentIconSet) || 'lucide';
+    return (ICONS[set] && ICONS[set][name]) || ICONS.lucide[name] || '';
+  }
+
+  // ================== DEMO COPY (per locale) ==================
+  const COPY = {
+    'en': {
+      brand:     'Acme',
+      nav:       { overview:'Overview', projects:'Projects', team:'Team', billing:'Billing', settings:'Settings' },
+      dashTitle: 'Overview',
+      dashSub:   'A look at how the project is performing this week.',
+      stats:     [
+        {label:'Active users', val:'2,847', trend:'+12.5%'},
+        {label:'Revenue',      val:'$48.2k', trend:'+8.1%'},
+        {label:'Conversion',   val:'3.4%',   trend:'+0.6%'}
+      ],
+      tableHead: ['Project','Owner','Status',''],
+      tableRows: [
+        {project:'Design system audit',  owner:'Sarah',  state:'active',  badge:'Active'},
+        {project:'API integration v2',   owner:'Marcus', state:'pending', badge:'Pending'},
+        {project:'Mobile responsive pass', owner:'Jia',  state:'draft',   badge:'Draft'}
+      ],
+      mktEyebrow: 'Acme · For modern teams',
+      mktH1:      'Ship faster without losing the thread.',
+      mktLead:    'A single workspace for the messy middle of building software — issues, decisions, and the changelog, kept in one place.',
+      mktCtaA:    'Start free',
+      mktCtaB:    'Read the changelog',
+      features: [
+        {icon:'shield',   h:'One source of truth', p:'Issues, docs, and decisions live next to the code, searchable from one bar.'},
+        {icon:'keyboard', h:'Built for keyboards', p:'Every action has a shortcut. The mouse is optional.'},
+        {icon:'bolt',     h:'Audit-friendly history', p:'Every change is signed, attributed, and reversible.'}
+      ],
+      artMeta:    'Design · 8 min read · 18 Apr 2026',
+      artH1:      'A design system that survives its first year',
+      artP1:      'Most design systems collapse the moment a real product hits them. The reason is rarely the tokens themselves — it\'s that the system was specified in <strong>terms of components</strong>, not in terms of decisions.',
+      artP2:      'What you actually want is a record of every choice the team has already made, so the next contributor can either reuse it or argue with it. That\'s it.',
+      artPull:    'A design system is not a component library. It is the documentation of every taste decision your team has made — and is willing to defend.',
+      artP3:      'The implication: the spec must be opinionated and contain reasoning. "Buttons are 8px radius" is not a spec; it\'s a hex code. "Buttons are 8px radius because we picked balance over softness" is a spec — and the next person can disagree explicitly.',
+      artFig:     '[ figure: token decision diagram ]',
+      formH1:     'Workspace settings',
+      formSub:    'Changes apply to everyone in this workspace.',
+      formNameL:  'Workspace name',     formNameV:  'Acme',
+      formSlugL:  'URL slug',           formSlugV:  'acme',
+      formSlugH:  'Lowercase letters, numbers, and dashes only.',
+      formContactL:'Primary contact',
+      formContactO:['sarah@acme.co','marcus@acme.co'],
+      formDescL:  'Description',         formDescV:  'A workspace for our design system experiments.',
+      togglePub:  {h:'Public discoverability', s:'Allow anyone with the URL to view your public pages.', state:'Off'},
+      toggle2fa:  {h:'Two-factor for everyone', s:'Require all members to enable 2FA before they can sign in.', state:'On'},
+      formSave:   'Save changes',        formCancel: 'Cancel',
+      priceH1:    'Pricing that grows with the team',
+      priceSub:   'Start free. Add seats only when you need them.',
+      tiers: [
+        {name:'Starter',    price:'Free',    unit:'',                feats:['Up to 3 seats','Unlimited projects','Community support'], cta:'Get started'},
+        {name:'Team',       price:'$12',     unit:'/seat / month',   feats:['Unlimited seats','SSO and audit log','Priority support','API access'], cta:'Start trial', popular:true, popularLabel:'Most popular'},
+        {name:'Enterprise', price:'Custom',  unit:'',                feats:['Custom contracts','Dedicated infrastructure','Service-level agreement'], cta:'Contact sales'}
+      ]
+    },
+    'zh-CN': {
+      brand:     '广源科技',
+      nav:       { overview:'概览', projects:'项目', team:'团队', billing:'账单', settings:'设置' },
+      dashTitle: '概览',
+      dashSub:   '本周项目运行情况速览。',
+      stats:     [
+        {label:'活跃用户', val:'2,847',   trend:'+12.5%'},
+        {label:'营收',     val:'¥35.6万', trend:'+8.1%'},
+        {label:'转化率',   val:'3.4%',    trend:'+0.6%'}
+      ],
+      tableHead: ['项目名称','负责人','状态',''],
+      tableRows: [
+        {project:'设计规范升级',     owner:'王晓',   state:'active',  badge:'进行中'},
+        {project:'API 接入第二期',   owner:'李子轩', state:'pending', badge:'待处理'},
+        {project:'移动端适配回归',   owner:'陈嘉',   state:'draft',   badge:'草稿'}
+      ],
+      mktEyebrow: '广源科技 · 为现代团队而生',
+      mktH1:      '更快交付，思路不丢失。',
+      mktLead:    '一个工作空间，承载软件开发过程中所有混沌中段——问题、决策与变更记录，统一可查。',
+      mktCtaA:    '免费开始',
+      mktCtaB:    '阅读更新日志',
+      features: [
+        {icon:'shield',   h:'唯一信息源', p:'问题、文档、决策与代码并行存在，单一搜索栏即可定位。'},
+        {icon:'keyboard', h:'键盘优先',   p:'每个操作都有快捷键，鼠标只是可选项。'},
+        {icon:'bolt',     h:'可审计历史', p:'每次变更都有签名、归属、可回滚。'}
+      ],
+      artMeta:    '设计 · 阅读 8 分钟 · 2026.04.18',
+      artH1:      '一套能撑过第一年的设计系统',
+      artP1:      '大多数设计系统在真实产品压力下就会崩。原因往往不是 token 本身，而是这个系统被定义成了<strong>组件清单</strong>，而不是被定义成一系列决策。',
+      artP2:      '你真正想要的是一份记录——团队过去每一个口味判断的记录，让下一个加入的人可以选择沿用或重新讨论。仅此而已。',
+      artPull:    '设计系统不是组件库。它是团队所做过的每一个口味决策的文档——并且团队愿意为它辩护。',
+      artP3:      '推论是：规范必须有立场，必须包含推理。"按钮圆角 8px" 不是规范，那只是一个数值。"按钮圆角 8px 是因为我们在均衡和柔和之间选了均衡" 才是规范——并且下一个人可以明确地反对它。',
+      artFig:     '[ 配图：token 决策路径图 ]',
+      formH1:     '工作空间设置',
+      formSub:    '改动会影响整个工作空间的所有成员。',
+      formNameL:  '工作空间名称',  formNameV:  '广源科技',
+      formSlugL:  'URL 标识',      formSlugV:  'guangyuan',
+      formSlugH:  '只能使用小写字母、数字和连字符。',
+      formContactL:'主联系人',
+      formContactO:['wangxiao@guangyuan.cn','lizixuan@guangyuan.cn'],
+      formDescL:  '简介',          formDescV:  '我们用于设计系统实验的工作空间。',
+      togglePub:  {h:'公开可见',           s:'允许任何拿到 URL 的人查看公开页面。', state:'关闭'},
+      toggle2fa:  {h:'强制双因素认证',     s:'所有成员登录前必须启用二次验证。',   state:'开启'},
+      formSave:   '保存修改',      formCancel: '取消',
+      priceH1:    '随团队成长的定价方案',
+      priceSub:   '免费起步，按需添加席位。',
+      tiers: [
+        {name:'起步版',  price:'免费',    unit:'',           feats:['最多 3 个席位','不限项目数','社区支持'], cta:'立即开始'},
+        {name:'团队版',  price:'¥88',     unit:'/席位/月',   feats:['不限席位','单点登录与审计日志','优先客服','API 访问'], cta:'开始试用', popular:true, popularLabel:'最受欢迎'},
+        {name:'企业版',  price:'定制',    unit:'',           feats:['定制合同','独立部署环境','服务等级协议'], cta:'联系销售'}
+      ]
+    },
+    'ja': {
+      brand:     'アクメ',
+      nav:       { overview:'概要', projects:'プロジェクト', team:'チーム', billing:'請求', settings:'設定' },
+      dashTitle: '概要',
+      dashSub:   '今週のプロジェクトの状況です。',
+      stats:     [
+        {label:'アクティブユーザー', val:'2,847',  trend:'+12.5%'},
+        {label:'売上',               val:'¥4.82M', trend:'+8.1%'},
+        {label:'コンバージョン率',   val:'3.4%',   trend:'+0.6%'}
+      ],
+      tableHead: ['プロジェクト','担当','ステータス',''],
+      tableRows: [
+        {project:'デザインシステム監査', owner:'佐藤', state:'active',  badge:'進行中'},
+        {project:'API連携 v2',           owner:'田中', state:'pending', badge:'保留'},
+        {project:'モバイル対応',         owner:'山田', state:'draft',   badge:'下書き'}
+      ],
+      mktEyebrow: 'アクメ · 現代のチームのために',
+      mktH1:      '速く出荷し、文脈を失わない。',
+      mktLead:    'ソフトウェア開発の煩雑な中間地帯を一つのワークスペースに——課題・意思決定・変更履歴を一か所で管理。',
+      mktCtaA:    '無料で始める',
+      mktCtaB:    '更新履歴を見る',
+      features: [
+        {icon:'shield',   h:'唯一の情報源', p:'課題・ドキュメント・意思決定をコードの隣に置き、ひとつのバーで検索可能。'},
+        {icon:'keyboard', h:'キーボード設計', p:'すべての操作にショートカット。マウスは任意。'},
+        {icon:'bolt',     h:'監査可能な履歴', p:'変更には署名・帰属・取り消し可能性が常に紐づく。'}
+      ],
+      artMeta:    'デザイン · 読了 8 分 · 2026年4月18日',
+      artH1:      '初年度を生き延びるデザインシステム',
+      artP1:      '多くのデザインシステムは実プロダクトに当たった瞬間に崩壊します。原因は token 自体ではなく、システムを<strong>コンポーネントの集合</strong>として定義したことにあります。',
+      artP2:      '本当に欲しいのは、チームが下したすべての判断の記録です。次に来る人がそれを再利用するか、明示的に再議論できるようにするためです。',
+      artPull:    'デザインシステムはコンポーネントライブラリではない。チームが下した一つひとつの趣味判断の文書化であり、チームが守る価値があると考えるものだ。',
+      artP3:      '結果として、仕様は意見を持ち、理由を含むべきです。「ボタンの角丸は 8px」は仕様ではありません。「柔らかさよりバランスを選んだので 8px」が仕様であり、次の人が明示的に異論を唱えられます。',
+      artFig:     '[ 図: token の意思決定図 ]',
+      formH1:     'ワークスペース設定',
+      formSub:    '変更はワークスペースの全メンバーに適用されます。',
+      formNameL:  'ワークスペース名',   formNameV:  'アクメ',
+      formSlugL:  'URL スラッグ',       formSlugV:  'acme',
+      formSlugH:  '小文字・数字・ハイフンのみ。',
+      formContactL:'主連絡先',
+      formContactO:['sato@acme.jp','tanaka@acme.jp'],
+      formDescL:  '説明',                 formDescV:  'デザインシステムを試行するワークスペース。',
+      togglePub:  {h:'公開ディスカバリー', s:'URL を持つ誰でも公開ページを閲覧可能。',         state:'オフ'},
+      toggle2fa:  {h:'全員に二要素認証',   s:'サインイン前に全メンバーが 2FA を有効化する。', state:'オン'},
+      formSave:   '変更を保存',           formCancel: 'キャンセル',
+      priceH1:    'チームに合わせた料金',
+      priceSub:   '無料で始め、必要なときにシートを追加。',
+      tiers: [
+        {name:'スターター', price:'無料',    unit:'',          feats:['シート 3 まで','プロジェクト無制限','コミュニティサポート'], cta:'開始'},
+        {name:'チーム',     price:'¥1,200',  unit:'/席/月',    feats:['シート無制限','SSO と監査ログ','優先サポート','API アクセス'], cta:'試用開始', popular:true, popularLabel:'人気'},
+        {name:'エンタープライズ', price:'要相談', unit:'',     feats:['カスタム契約','専用インフラ','SLA'], cta:'営業に問い合わせ'}
+      ]
+    }
+  };
+
+  function copy(locale) { return COPY[locale] || COPY.en; }
+
+  function loadFonts(names, locale) {
     const set = [...new Set(names.filter(Boolean))];
+    if (locale && locale !== 'en') {
+      // Add locale-appropriate sans fallback to the request
+      if (locale === 'zh-CN' || locale === 'zh-TW') set.push('Noto Sans SC');
+      if (locale === 'ja')    set.push('Noto Sans JP');
+      if (locale === 'ko')    set.push('Noto Sans KR');
+    }
     if (!set.length) return;
     const url = 'https://fonts.googleapis.com/css2?' +
       set.map(f => 'family=' + encodeURIComponent(f) + ':wght@400;500;600;700;800').join('&') +
@@ -383,7 +680,7 @@
     document.head.appendChild(link);
   }
 
-  function applyTokens(el, opt) {
+  function applyTokens(el, opt, locale) {
     const c = opt.colors, f = opt.fonts || {}, r = opt.radius || { sm:'4px', md:'8px', lg:'12px' };
     el.style.setProperty('--c-primary',         c.primary);
     el.style.setProperty('--c-primary-hover',   c.primaryHover || c.primary);
@@ -398,248 +695,202 @@
     el.style.setProperty('--c-warning',         c.warning || '#d97706');
     el.style.setProperty('--c-error',           c.error   || '#dc2626');
     el.style.setProperty('--c-info',            c.info    || '#2563eb');
-    el.style.setProperty('--f-heading',         '"' + (f.heading || 'system-ui') + '", -apple-system, sans-serif');
-    el.style.setProperty('--f-body',            '"' + (f.body    || 'system-ui') + '", -apple-system, sans-serif');
+
+    const cjkFallback =
+      locale === 'zh-CN' || locale === 'zh-TW' ? `, "Noto Sans SC", "PingFang SC", "Microsoft YaHei"` :
+      locale === 'ja'                          ? `, "Noto Sans JP", "Hiragino Kaku Gothic ProN"` :
+      locale === 'ko'                          ? `, "Noto Sans KR", "Apple SD Gothic Neo"` : '';
+
+    el.style.setProperty('--f-heading', '"' + (f.heading || 'system-ui') + '"' + cjkFallback + ', -apple-system, sans-serif');
+    el.style.setProperty('--f-body',    '"' + (f.body    || 'system-ui') + '"' + cjkFallback + ', -apple-system, sans-serif');
     el.style.setProperty('--r-sm',              r.sm || '4px');
     el.style.setProperty('--r-md',              r.md || '8px');
     el.style.setProperty('--r-lg',              r.lg || '12px');
   }
 
-  // ====== Surface renderers (return innerHTML strings) ======
+  // ================== SURFACE RENDERERS ==================
 
-  function renderSurface(id) {
-    if (id === 'marketing') return surfaceMarketing();
-    if (id === 'content')   return surfaceContent();
-    if (id === 'form')      return surfaceForm();
-    if (id === 'pricing')   return surfacePricing();
-    return surfaceDashboard();
+  function renderSurface(id, locale, iconSet) {
+    window.__currentIconSet = iconSet;
+    const t = copy(locale);
+    if (id === 'marketing') return surfaceMarketing(t, iconSet);
+    if (id === 'content')   return surfaceContent(t);
+    if (id === 'form')      return surfaceForm(t);
+    if (id === 'pricing')   return surfacePricing(t, iconSet);
+    return surfaceDashboard(t, iconSet);
   }
 
-  function surfaceDashboard() {
+  function surfaceDashboard(t, iconSet) {
+    const navItems = ['overview','projects','team','billing','settings']
+      .map((k,i) => `<div class="s-dash-nav-item${i===0?' active':''}">${icon(k,iconSet)}<span>${t.nav[k]}</span></div>`).join('');
+    const stats = t.stats.map(s => `
+      <div class="s-dash-stat surface-card">
+        <div class="s-dash-stat-label">${s.label}</div>
+        <div class="s-dash-stat-val">${s.val}</div>
+        <div class="s-dash-stat-trend">${s.trend}</div>
+      </div>`).join('');
+    const headRow = `<div class="s-dash-row s-dash-row-head"><div>${t.tableHead[0]}</div><div>${t.tableHead[1]}</div><div>${t.tableHead[2]}</div><div></div></div>`;
+    const rows = t.tableRows.map(r => `
+      <div class="s-dash-row">
+        <div>${r.project}</div>
+        <div style="color:var(--c-text-muted);">${r.owner}</div>
+        <div><span class="s-dash-badge s-dash-badge-${r.state==='active'?'s':r.state==='pending'?'w':'i'}">${r.badge}</span></div>
+        <button class="b-ghost" style="padding:4px 8px;font-size:12px;">${icon('arrow',iconSet)}</button>
+      </div>`).join('');
     return `
       <div class="s-dash">
         <aside class="s-dash-side">
-          <div class="s-dash-side-title">Acme</div>
-          <nav class="s-dash-nav">
-            <div class="s-dash-nav-item active">Overview</div>
-            <div class="s-dash-nav-item">Projects</div>
-            <div class="s-dash-nav-item">Team</div>
-            <div class="s-dash-nav-item">Billing</div>
-            <div class="s-dash-nav-item">Settings</div>
-          </nav>
+          <div class="s-dash-side-title">${icon('overview',iconSet)} ${t.brand}</div>
+          <nav class="s-dash-nav">${navItems}</nav>
         </aside>
         <main class="s-dash-main">
-          <h1 class="s-dash-h1">Overview</h1>
-          <p class="s-dash-sub">A look at how the project is performing this week.</p>
-          <div class="s-dash-stats">
-            <div class="s-dash-stat">
-              <div class="s-dash-stat-label">Active users</div>
-              <div class="s-dash-stat-val">2,847</div>
-              <div class="s-dash-stat-trend">+12.5%</div>
-            </div>
-            <div class="s-dash-stat">
-              <div class="s-dash-stat-label">Revenue</div>
-              <div class="s-dash-stat-val">$48.2k</div>
-              <div class="s-dash-stat-trend">+8.1%</div>
-            </div>
-            <div class="s-dash-stat">
-              <div class="s-dash-stat-label">Conversion</div>
-              <div class="s-dash-stat-val">3.4%</div>
-              <div class="s-dash-stat-trend">+0.6%</div>
-            </div>
-          </div>
-          <div class="s-dash-table">
-            <div class="s-dash-row s-dash-row-head">
-              <div>Project</div><div>Owner</div><div>Status</div><div></div>
-            </div>
-            <div class="s-dash-row">
-              <div>Design system audit</div>
-              <div style="color:var(--c-text-muted);">Sarah</div>
-              <div><span class="s-dash-badge s-dash-badge-s">Active</span></div>
-              <button class="b-ghost" style="padding:4px 8px;font-size:12px;">Open</button>
-            </div>
-            <div class="s-dash-row">
-              <div>API integration v2</div>
-              <div style="color:var(--c-text-muted);">Marcus</div>
-              <div><span class="s-dash-badge s-dash-badge-w">Pending</span></div>
-              <button class="b-ghost" style="padding:4px 8px;font-size:12px;">Open</button>
-            </div>
-            <div class="s-dash-row">
-              <div>Mobile responsive pass</div>
-              <div style="color:var(--c-text-muted);">Jia</div>
-              <div><span class="s-dash-badge s-dash-badge-i">Draft</span></div>
-              <button class="b-ghost" style="padding:4px 8px;font-size:12px;">Open</button>
-            </div>
-          </div>
+          <h1 class="s-dash-h1">${t.dashTitle}</h1>
+          <p class="s-dash-sub">${t.dashSub}</p>
+          <div class="s-dash-stats">${stats}</div>
+          <div class="s-dash-table surface-pane">${headRow}${rows}</div>
         </main>
       </div>`;
   }
 
-  function surfaceMarketing() {
+  function surfaceMarketing(t, iconSet) {
+    const features = t.features.map(f => `
+      <div class="s-mkt-feat">
+        <div class="s-mkt-feat-icon">${icon(f.icon,iconSet)}</div>
+        <div class="s-mkt-feat-h">${f.h}</div>
+        <p class="s-mkt-feat-p">${f.p}</p>
+      </div>`).join('');
     return `
-      <div class="s-mkt">
-        <div class="s-mkt-eyebrow">Acme · For modern teams</div>
-        <h1 class="s-mkt-h1">Ship faster without losing the thread.</h1>
-        <p class="s-mkt-lead">A single workspace for the messy middle of building software — issues, decisions, and the changelog, kept in one place.</p>
+      <div class="s-mkt deco-gradient-target deco-texture-target">
+        <div class="s-mkt-eyebrow">${t.mktEyebrow}</div>
+        <h1 class="s-mkt-h1">${t.mktH1}</h1>
+        <p class="s-mkt-lead">${t.mktLead}</p>
         <div class="s-mkt-cta-row">
-          <button class="b-primary b-lg">Start free</button>
-          <button class="b-secondary b-lg">Read the changelog</button>
+          <button class="b-primary b-lg">${t.mktCtaA} ${icon('arrow',iconSet)}</button>
+          <button class="b-secondary b-lg">${t.mktCtaB}</button>
         </div>
-        <div class="s-mkt-features">
-          <div>
-            <div class="s-mkt-feat-h">One source of truth</div>
-            <p class="s-mkt-feat-p">Issues, docs, and decisions live next to the code, searchable from one bar.</p>
-          </div>
-          <div>
-            <div class="s-mkt-feat-h">Built for keyboards</div>
-            <p class="s-mkt-feat-p">Every action has a shortcut. The mouse is optional.</p>
-          </div>
-          <div>
-            <div class="s-mkt-feat-h">Audit-friendly history</div>
-            <p class="s-mkt-feat-p">Every change is signed, attributed, and reversible.</p>
-          </div>
-        </div>
+        <div class="s-mkt-features">${features}</div>
       </div>`;
   }
 
-  function surfaceContent() {
+  function surfaceContent(t) {
     return `
       <article class="s-art">
-        <div class="s-art-meta">Design · 8 min read · 18 Apr 2026</div>
-        <h1 class="s-art-h1">A design system that survives its first year</h1>
-        <p>Most design systems collapse the moment a real product hits them. The reason is rarely the tokens themselves — it's that the system was specified in <strong>terms of components</strong>, not in terms of decisions.</p>
-        <p>What you actually want is a record of every choice the team has already made, so the next contributor can either reuse it or argue with it. That's it.</p>
-        <blockquote class="s-art-pull">A design system is not a component library. It is the documentation of every taste decision your team has made — and is willing to defend.</blockquote>
-        <p>The implication: the spec must be opinionated and contain reasoning. "Buttons are 8px radius" is not a spec; it's a hex code. "Buttons are 8px radius because we picked balance over softness" is a spec — and the next person can disagree explicitly.</p>
-        <div class="s-art-figure">[ figure: token decision diagram ]</div>
-        <p>This is also why design systems shouldn't ship as a Figma library alone. Figma stores the result; it doesn't store the argument.</p>
+        <div class="s-art-meta">${t.artMeta}</div>
+        <h1 class="s-art-h1">${t.artH1}</h1>
+        <p>${t.artP1}</p>
+        <p>${t.artP2}</p>
+        <blockquote class="s-art-pull">${t.artPull}</blockquote>
+        <p>${t.artP3}</p>
+        <div class="s-art-figure surface-card">${t.artFig}</div>
       </article>`;
   }
 
-  function surfaceForm() {
+  function surfaceForm(t) {
+    const opts = t.formContactO.map(o => `<option>${o}</option>`).join('');
     return `
       <div class="s-form">
-        <h1 class="s-form-h1">Workspace settings</h1>
-        <p class="s-form-sub">Changes apply to everyone in this workspace.</p>
+        <h1 class="s-form-h1">${t.formH1}</h1>
+        <p class="s-form-sub">${t.formSub}</p>
         <div class="s-form-group">
-          <label class="s-form-label">Workspace name</label>
-          <input class="s-form-input" type="text" value="Acme">
+          <label class="s-form-label">${t.formNameL}</label>
+          <input class="s-form-input" type="text" value="${t.formNameV}">
         </div>
         <div class="s-form-group">
-          <label class="s-form-label">URL slug</label>
-          <input class="s-form-input" type="text" value="acme">
-          <div class="s-form-help">Lowercase letters, numbers, and dashes only.</div>
+          <label class="s-form-label">${t.formSlugL}</label>
+          <input class="s-form-input" type="text" value="${t.formSlugV}">
+          <div class="s-form-help">${t.formSlugH}</div>
         </div>
         <div class="s-form-group">
-          <label class="s-form-label">Primary contact</label>
-          <select class="s-form-select"><option>sarah@acme.co</option><option>marcus@acme.co</option></select>
+          <label class="s-form-label">${t.formContactL}</label>
+          <select class="s-form-select">${opts}</select>
         </div>
         <div class="s-form-group">
-          <label class="s-form-label">Description</label>
-          <textarea class="s-form-textarea">A workspace for our design system experiments.</textarea>
+          <label class="s-form-label">${t.formDescL}</label>
+          <textarea class="s-form-textarea">${t.formDescV}</textarea>
         </div>
         <div class="s-form-toggle-row">
           <div class="s-form-toggle-info">
-            <strong>Public discoverability</strong>
-            <span>Allow anyone with the URL to view your public pages.</span>
+            <strong>${t.togglePub.h}</strong>
+            <span>${t.togglePub.s}</span>
           </div>
-          <button class="b-secondary" style="padding:6px 14px;font-size:13px;">Off</button>
+          <button class="b-secondary" style="padding:6px 14px;font-size:13px;">${t.togglePub.state}</button>
         </div>
         <div class="s-form-toggle-row">
           <div class="s-form-toggle-info">
-            <strong>Two-factor for everyone</strong>
-            <span>Require all members to enable 2FA before they can sign in.</span>
+            <strong>${t.toggle2fa.h}</strong>
+            <span>${t.toggle2fa.s}</span>
           </div>
-          <button class="b-primary" style="padding:6px 14px;font-size:13px;">On</button>
+          <button class="b-primary" style="padding:6px 14px;font-size:13px;">${t.toggle2fa.state}</button>
         </div>
         <div class="s-form-actions">
-          <button class="b-primary">Save changes</button>
-          <button class="b-secondary">Cancel</button>
+          <button class="b-primary">${t.formSave}</button>
+          <button class="b-secondary">${t.formCancel}</button>
         </div>
       </div>`;
   }
 
-  function surfacePricing() {
+  function surfacePricing(t, iconSet) {
+    const tiers = t.tiers.map(tier => `
+      <div class="s-price-card surface-card${tier.popular?' featured':''}"${tier.popular?` data-popular="${tier.popularLabel}"`:''}>
+        <div class="s-price-tier">${tier.name}</div>
+        <div class="s-price-amount">${tier.price}<span>${tier.unit}</span></div>
+        <ul class="s-price-list">${tier.feats.map(f=>`<li>${icon('check',iconSet)} ${f}</li>`).join('')}</ul>
+        <button class="${tier.popular?'b-primary':'b-secondary'}">${tier.cta}</button>
+      </div>`).join('');
     return `
       <div class="s-price">
-        <h1 class="s-price-h1">Pricing that grows with the team</h1>
-        <p class="s-price-sub">Start free. Add seats only when you need them.</p>
-        <div class="s-price-grid">
-          <div class="s-price-card">
-            <div class="s-price-tier">Starter</div>
-            <div class="s-price-amount">Free<span></span></div>
-            <ul class="s-price-list">
-              <li>Up to 3 seats</li>
-              <li>Unlimited projects</li>
-              <li>Community support</li>
-            </ul>
-            <button class="b-secondary">Get started</button>
-          </div>
-          <div class="s-price-card featured">
-            <div class="s-price-tier">Team</div>
-            <div class="s-price-amount">$12<span>/seat / month</span></div>
-            <ul class="s-price-list">
-              <li>Unlimited seats</li>
-              <li>SSO and audit log</li>
-              <li>Priority support</li>
-              <li>API access</li>
-            </ul>
-            <button class="b-primary">Start trial</button>
-          </div>
-          <div class="s-price-card">
-            <div class="s-price-tier">Enterprise</div>
-            <div class="s-price-amount">Custom<span></span></div>
-            <ul class="s-price-list">
-              <li>Custom contracts</li>
-              <li>Dedicated infrastructure</li>
-              <li>Service-level agreement</li>
-            </ul>
-            <button class="b-secondary">Contact sales</button>
-          </div>
-        </div>
+        <h1 class="s-price-h1">${t.priceH1}</h1>
+        <p class="s-price-sub">${t.priceSub}</p>
+        <div class="s-price-grid">${tiers}</div>
       </div>`;
   }
 
-  // ====== Mode dispatch ======
-
+  // ================== MODE DISPATCH ==================
   if (C.mode === 'compare') renderCompare();
   else renderFull();
 
-  // ====== COMPARE MODE ======
+  // ================== COMPARE MODE ==================
   function renderCompare() {
-    const surface = C.surface || 'dashboard';
-    const fonts = [];
-    C.options.forEach(o => { if (o.fonts) { fonts.push(o.fonts.heading, o.fonts.body); } });
-    loadFonts(fonts);
+    const surface  = C.surface || 'dashboard';
+    const strategy = C.containerStrategy || 'border';
+    const iconSet  = C.iconSet || 'lucide';
+    const locale   = C.locale || 'en';
 
-    // chrome
+    const fonts = [];
+    C.options.forEach(o => { if (o.fonts) fonts.push(o.fonts.heading, o.fonts.body); });
+    loadFonts(fonts, locale);
+
     const chrome = document.createElement('div');
     chrome.className = 'chrome-bar';
     chrome.innerHTML = `
-      <div class="chrome-title">Compare directions <small>${C.options.length} options · same content, different tokens</small></div>
+      <div class="chrome-title">Compare directions <small>${C.options.length} options · same content, same surface</small></div>
       <span class="chrome-label">Surface</span>
-      <div class="chrome-group" id="surface-switcher">
-        ${SURFACES.map(s => `<button class="chrome-btn ${s.id===surface?'active':''}" data-surface="${s.id}">${s.label}</button>`).join('')}
-      </div>
+      <div class="chrome-group" id="cmp-surface">${SURFACES.map(s => `<button class="chrome-btn ${s.id===surface?'active':''}" data-surface="${s.id}">${s.label}</button>`).join('')}</div>
+      <span class="chrome-label">Container</span>
+      <div class="chrome-group" id="cmp-strategy">${STRATEGIES.map(s => `<button class="chrome-btn ${s.id===strategy?'active':''}" data-strategy="${s.id}">${s.label}</button>`).join('')}</div>
+      <span class="chrome-label">Icons</span>
+      <div class="chrome-group" id="cmp-icon">${ICON_SETS.map(s => `<button class="chrome-btn ${s.id===iconSet?'active':''}" data-icon="${s.id}">${s.label}</button>`).join('')}</div>
+      <span class="chrome-label">Locale</span>
+      <div class="chrome-group" id="cmp-locale">${LOCALES.map(s => `<button class="chrome-btn ${s.id===locale?'active':''}" data-locale="${s.id}">${s.label}</button>`).join('')}</div>
     `;
     root.appendChild(chrome);
 
     const stage = document.createElement('div');
     stage.className = 'stage';
-
     if (C.title || C.subtitle) {
       const head = document.createElement('div');
       head.className = 'compare-header';
       head.innerHTML = `${C.title ? `<h1>${C.title}</h1>` : ''}${C.subtitle ? `<p>${C.subtitle}</p>` : ''}`;
       stage.appendChild(head);
     }
-
     const grid = document.createElement('div');
     grid.className = 'compare-grid';
     stage.appendChild(grid);
     root.appendChild(stage);
 
-    function paint(s) {
+    let state = { surface, strategy, iconSet, locale };
+
+    function paint() {
       grid.innerHTML = '';
       C.options.forEach(opt => {
         const card = document.createElement('div');
@@ -653,7 +904,7 @@
               <div class="candidate-subtitle">${opt.subtitle || ''}</div>
             </div>
           </div>
-          <div class="candidate-stage">${renderSurface(s)}</div>
+          <div class="candidate-stage stage-root strategy-${state.strategy} locale-${state.locale}">${renderSurface(state.surface, state.locale, state.iconSet)}</div>
           <div class="candidate-tokens">
             <div class="token-row">
               <strong>Color</strong>
@@ -676,54 +927,84 @@
             </div>
           </div>
         `;
-        applyTokens(card.querySelector('.candidate-stage'), opt);
+        applyTokens(card.querySelector('.candidate-stage'), opt, state.locale);
         grid.appendChild(card);
       });
     }
+    paint();
 
-    paint(surface);
-
-    chrome.querySelectorAll('[data-surface]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        chrome.querySelectorAll('[data-surface]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        paint(btn.dataset.surface);
+    function bind(group, key, target) {
+      chrome.querySelector(group).querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          chrome.querySelector(group).querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state[target] = btn.dataset[key];
+          paint();
+        });
       });
-    });
+    }
+    bind('#cmp-surface',  'surface',  'surface');
+    bind('#cmp-strategy', 'strategy', 'strategy');
+    bind('#cmp-icon',     'icon',     'iconSet');
+    bind('#cmp-locale',   'locale',   'locale');
 
     document.title = C.title || 'Design Compare';
   }
 
-  // ====== FULL MODE ======
+  // ================== FULL MODE ==================
   function renderFull() {
-    const fonts = [C.fonts.heading, C.fonts.body, C.fonts.mono];
-    loadFonts(fonts);
+    const surfacesAll = (C.surfaces && C.surfaces.length) ? C.surfaces : SURFACES.map(s => s.id);
+    const surfaceList = SURFACES.filter(s => surfacesAll.includes(s.id));
 
-    const surfaces = (C.surfaces && C.surfaces.length) ? C.surfaces : SURFACES.map(s => s.id);
-    const surfaceList = SURFACES.filter(s => surfaces.includes(s.id));
-    let currentSurface = C.defaultSurface && surfaces.includes(C.defaultSurface) ? C.defaultSurface : surfaceList[0].id;
-    let currentViewport = 'desktop';
-    let darkMode = false;
+    let state = {
+      surface:   C.defaultSurface && surfacesAll.includes(C.defaultSurface) ? C.defaultSurface : surfaceList[0].id,
+      viewport:  'desktop',
+      darkMode:  false,
+      strategy:  C.containerStrategy || 'border',
+      iconSet:   (C.iconSystem && C.iconSystem.set) || 'lucide',
+      locale:    (C.locale && C.locale.primary) || 'en',
+      gradient:  (C.decoration && C.decoration.gradients) || 'none',
+      texture:   (C.decoration && C.decoration.textures)  || 'none'
+    };
 
-    // chrome
+    loadFonts([C.fonts.heading, C.fonts.body, C.fonts.mono], state.locale);
+
     const chrome = document.createElement('div');
     chrome.className = 'chrome-bar';
     chrome.innerHTML = `
       <div class="chrome-title">${C.name || 'Design System'} ${C.family ? `<small>· ${C.family}</small>` : ''}</div>
       <span class="chrome-label">Surface</span>
-      <div class="chrome-group" id="surface-switcher">
-        ${surfaceList.map(s => `<button class="chrome-btn ${s.id===currentSurface?'active':''}" data-surface="${s.id}">${s.label}</button>`).join('')}
+      <div class="chrome-group" id="full-surface">${surfaceList.map(s => `<button class="chrome-btn ${s.id===state.surface?'active':''}" data-surface="${s.id}">${s.label}</button>`).join('')}</div>
+      <span class="chrome-label">Container</span>
+      <div class="chrome-group" id="full-strategy">${STRATEGIES.map(s => `<button class="chrome-btn ${s.id===state.strategy?'active':''}" data-strategy="${s.id}">${s.label}</button>`).join('')}</div>
+      <span class="chrome-label">Icons</span>
+      <div class="chrome-group" id="full-icon">${ICON_SETS.map(s => `<button class="chrome-btn ${s.id===state.iconSet?'active':''}" data-icon="${s.id}">${s.label}</button>`).join('')}</div>
+      <span class="chrome-label">Gradient</span>
+      <div class="chrome-group" id="full-gradient">
+        <button class="chrome-btn ${state.gradient==='none'?'active':''}" data-gradient="none">None</button>
+        <button class="chrome-btn ${state.gradient==='subtle'?'active':''}" data-gradient="subtle">Subtle</button>
+        <button class="chrome-btn ${state.gradient==='expressive'?'active':''}" data-gradient="expressive">Expressive</button>
       </div>
+      <span class="chrome-label">Texture</span>
+      <div class="chrome-group" id="full-texture">
+        <button class="chrome-btn ${state.texture==='none'?'active':''}" data-texture="none">None</button>
+        <button class="chrome-btn ${state.texture==='noise'?'active':''}" data-texture="noise">Noise</button>
+        <button class="chrome-btn ${state.texture==='dot-grid'?'active':''}" data-texture="dot-grid">Dot</button>
+        <button class="chrome-btn ${state.texture==='paper'?'active':''}" data-texture="paper">Paper</button>
+        <button class="chrome-btn ${state.texture==='scan-lines'?'active':''}" data-texture="scan-lines">Scan</button>
+      </div>
+      <span class="chrome-label">Locale</span>
+      <div class="chrome-group" id="full-locale">${LOCALES.map(s => `<button class="chrome-btn ${s.id===state.locale?'active':''}" data-locale="${s.id}">${s.label}</button>`).join('')}</div>
       <span class="chrome-label">Viewport</span>
-      <div class="chrome-group" id="viewport-switcher">
+      <div class="chrome-group" id="full-viewport">
         <button class="chrome-btn active" data-viewport="desktop">Desktop</button>
         <button class="chrome-btn" data-viewport="tablet">Tablet</button>
         <button class="chrome-btn" data-viewport="mobile">Mobile</button>
       </div>
       <span class="chrome-label">Theme</span>
-      <div class="chrome-group" id="theme-switcher">
+      <div class="chrome-group" id="full-theme">
         <button class="chrome-btn active" data-theme="light">Light</button>
-        <button class="chrome-btn" data-theme="dark" ${C.colors.dark ? '' : 'disabled title="No dark tokens defined"'}>Dark</button>
+        <button class="chrome-btn" data-theme="dark" ${C.colors.dark ? '' : 'disabled title="No dark tokens defined in config"'}>Dark</button>
       </div>
     `;
     root.appendChild(chrome);
@@ -736,42 +1017,35 @@
     root.appendChild(stage);
 
     function paint() {
-      frame.classList.toggle('dark-mode', darkMode);
-      frame.className = `full-frame viewport-${currentViewport}${darkMode ? ' dark-mode' : ''}`;
-
-      // build a synthetic option to reuse applyTokens
+      frame.className = `full-frame stage-root viewport-${state.viewport} strategy-${state.strategy} locale-${state.locale}` +
+        ` decoration-gradient-${state.gradient} decoration-texture-${state.texture}`;
       const c = { ...C.colors };
-      if (darkMode && C.colors.dark) Object.assign(c, C.colors.dark);
-      applyTokens(frame, { colors: c, fonts: C.fonts, radius: C.radius });
-      frame.innerHTML = renderSurface(currentSurface);
+      if (state.darkMode && C.colors.dark) Object.assign(c, C.colors.dark);
+      applyTokens(frame, { colors: c, fonts: C.fonts, radius: C.radius }, state.locale);
+      frame.innerHTML = renderSurface(state.surface, state.locale, state.iconSet);
     }
     paint();
 
-    chrome.querySelectorAll('[data-surface]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        chrome.querySelectorAll('[data-surface]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentSurface = btn.dataset.surface;
-        paint();
+    function bind(group, key, target, after) {
+      chrome.querySelector(group).querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (btn.disabled) return;
+          chrome.querySelector(group).querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state[target] = btn.dataset[key];
+          if (after) after(btn);
+          paint();
+        });
       });
-    });
-    chrome.querySelectorAll('[data-viewport]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        chrome.querySelectorAll('[data-viewport]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentViewport = btn.dataset.viewport;
-        paint();
-      });
-    });
-    chrome.querySelectorAll('[data-theme]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.disabled) return;
-        chrome.querySelectorAll('[data-theme]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        darkMode = btn.dataset.theme === 'dark';
-        paint();
-      });
-    });
+    }
+    bind('#full-surface',   'surface',   'surface');
+    bind('#full-strategy',  'strategy',  'strategy');
+    bind('#full-icon',      'icon',      'iconSet');
+    bind('#full-gradient',  'gradient',  'gradient');
+    bind('#full-texture',   'texture',   'texture');
+    bind('#full-locale',    'locale',    'locale', () => loadFonts([C.fonts.heading, C.fonts.body, C.fonts.mono], state.locale));
+    bind('#full-viewport',  'viewport',  'viewport');
+    bind('#full-theme',     'theme',     'darkMode', (btn) => { state.darkMode = btn.dataset.theme === 'dark'; });
 
     document.title = `Design Preview — ${C.name || 'Project'}`;
   }
