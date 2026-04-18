@@ -1,0 +1,781 @@
+<!--
+  Design Preview Template (Config-Driven, Style-Neutral)
+  ======================================================
+  STATIC template. Do NOT modify per-user.
+
+  Goals:
+  1. The template chrome is intentionally neutral so it never overwhelms
+     the design being previewed. No cyberpunk arena, no 3D hover,
+     no decorative gradients.
+  2. Compare mode shows multiple candidate token sets side by side,
+     each rendering the same realistic micro-surface so taste is
+     comparable, not just decoration.
+  3. Full mode renders the full system across multiple SURFACES
+     (dashboard, marketing, content, form, pricing), with a viewport
+     switcher and dark-mode toggle. The user can pressure-test the
+     tokens on the formats their project actually has.
+
+  Usage:
+  1. cp this file to /tmp/design-preview.html (first time only)
+  2. Write /tmp/design-config.js with window.__DESIGN_CONFIG__ = {...}
+  3. open /tmp/design-preview.html
+  4. To iterate: rewrite design-config.js only, user refreshes.
+
+  Two modes:
+
+  COMPARE mode:
+  {
+    mode: "compare",
+    title: "Pick whichever feels closest",
+    subtitle: "Optional secondary line",
+    surface: "dashboard",   // shared surface every option renders
+                            // dashboard | marketing | content | form | pricing
+    options: [
+      { label: "A",
+        family: "modern-minimal",       // optional badge
+        subtitle: "Linear / Vercel / Notion",
+        colors: { primary, primaryHover, primarySubtle,
+                  bg, surface, border,
+                  text, textSecondary, textMuted,
+                  success, warning, error, info },
+        fonts: { heading, body },
+        radius: { sm, md, lg } },
+      ...
+    ]
+  }
+
+  FULL mode:
+  {
+    mode: "full",
+    name: "ProjectName",
+    family: "modern-minimal",            // optional badge
+    surfaces: ["dashboard","marketing","content","form","pricing"],
+    defaultSurface: "dashboard",
+    colors: { primary, primaryHover, primarySubtle, secondary,
+              bg, surface, border, text, textSecondary, textMuted,
+              success, warning, error, info,
+              dark: { bg, surface, border, text, textSecondary, textMuted } },
+    fonts: { heading, body, mono },
+    radius: { sm, md, lg },
+    shadows: { sm, md, lg },
+    spacing: "compact" | "balanced" | "spacious",
+    motion:  "minimal" | "subtle"   | "expressive"
+  }
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #f5f5f5;
+    color: #1a1a1a;
+    line-height: 1.5;
+  }
+
+  /* ===== NEUTRAL CHROME (shared by both modes) ===== */
+  .chrome-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 16px;
+    flex-wrap: wrap;
+  }
+  .chrome-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-right: auto; }
+  .chrome-title small { color: #888; font-weight: 400; margin-left: 8px; }
+  .chrome-group { display: flex; align-items: center; gap: 4px; padding: 2px; background: #f5f5f5; border-radius: 6px; }
+  .chrome-btn {
+    background: transparent; border: none;
+    padding: 6px 10px; font-size: 12px; font-weight: 500;
+    color: #555; cursor: pointer; border-radius: 4px;
+    transition: background 120ms, color 120ms;
+    font-family: inherit;
+  }
+  .chrome-btn:hover { color: #1a1a1a; }
+  .chrome-btn.active { background: #ffffff; color: #1a1a1a; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .chrome-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-right: 4px; }
+
+  .stage {
+    padding: 32px 24px 80px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ===== COMPARE MODE ===== */
+  .compare-header { max-width: 1400px; margin: 0 auto 24px; padding: 8px 0; }
+  .compare-header h1 {
+    font-size: 22px; font-weight: 600; color: #1a1a1a;
+    letter-spacing: -0.01em; margin-bottom: 4px;
+  }
+  .compare-header p { font-size: 14px; color: #666; }
+
+  .compare-grid {
+    max-width: 1400px; margin: 0 auto;
+    display: grid; gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  }
+  .candidate {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .candidate-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .candidate-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    background: #1a1a1a; color: #fff;
+    padding: 3px 7px; border-radius: 3px;
+    min-width: 22px; text-align: center;
+  }
+  .candidate-meta { flex: 1; min-width: 0; }
+  .candidate-family { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .candidate-subtitle { font-size: 13px; color: #1a1a1a; font-weight: 500; margin-top: 1px; }
+  .candidate-stage {
+    padding: 0;
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-family: var(--f-body), -apple-system, sans-serif;
+    border-bottom: 1px solid #e5e5e5;
+    overflow: hidden;
+  }
+  .candidate-tokens {
+    padding: 12px 16px;
+    background: #fafafa;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .token-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #666; }
+  .token-row strong { font-weight: 600; color: #444; min-width: 56px; }
+  .token-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.08); }
+  .token-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+  .token-pill {
+    background: #fff; border: 1px solid #e5e5e5;
+    padding: 1px 6px; border-radius: 3px;
+    font-size: 10px; color: #555;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  /* ===== FULL MODE ===== */
+  .full-frame {
+    max-width: var(--viewport-width, 1280px);
+    margin: 0 auto;
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-family: var(--f-body), -apple-system, sans-serif;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: max-width 200ms ease;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+  }
+  .full-frame.dark-mode { color-scheme: dark; }
+  .viewport-tablet { --viewport-width: 820px; }
+  .viewport-mobile { --viewport-width: 390px; }
+
+  /* ====== Surface: shared utilities (unstyled by chrome — uses --c-* tokens from candidate / full) ====== */
+
+  /* DASHBOARD surface */
+  .s-dash { display: flex; min-height: 480px; }
+  .s-dash-side {
+    width: 200px; background: var(--c-surface); border-right: 1px solid var(--c-border);
+    padding: 16px 12px; flex-shrink: 0;
+  }
+  .s-dash-side-title { font-family: var(--f-heading); font-weight: 700; font-size: 14px; color: var(--c-text); margin-bottom: 12px; padding: 0 8px; letter-spacing: -0.01em; }
+  .s-dash-nav { display: flex; flex-direction: column; gap: 2px; }
+  .s-dash-nav-item { padding: 7px 8px; border-radius: var(--r-sm); font-size: 13px; color: var(--c-text-sec); cursor: pointer; }
+  .s-dash-nav-item.active { background: var(--c-primary-subtle); color: var(--c-primary); font-weight: 600; }
+  .s-dash-main { flex: 1; padding: 24px; min-width: 0; }
+  .s-dash-h1 { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .s-dash-sub { font-size: 13px; color: var(--c-text-muted); margin-bottom: 20px; }
+  .s-dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .s-dash-stat {
+    background: var(--c-surface); border: 1px solid var(--c-border);
+    border-radius: var(--r-md); padding: 14px;
+  }
+  .s-dash-stat-label { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-bottom: 6px; }
+  .s-dash-stat-val { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .s-dash-stat-trend { font-size: 11px; color: var(--c-success); margin-top: 2px; }
+  .s-dash-table {
+    background: var(--c-surface); border: 1px solid var(--c-border);
+    border-radius: var(--r-md); overflow: hidden;
+  }
+  .s-dash-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--c-border); align-items: center; font-size: 13px; }
+  .s-dash-row:last-child { border-bottom: none; }
+  .s-dash-row-head { background: var(--c-bg); font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .s-dash-badge { font-size: 11px; padding: 2px 7px; border-radius: 9999px; font-weight: 600; }
+  .s-dash-badge-s { background: color-mix(in srgb, var(--c-success) 12%, transparent); color: var(--c-success); }
+  .s-dash-badge-w { background: color-mix(in srgb, var(--c-warning) 12%, transparent); color: var(--c-warning); }
+  .s-dash-badge-i { background: color-mix(in srgb, var(--c-info) 12%, transparent); color: var(--c-info); }
+
+  /* MARKETING surface */
+  .s-mkt { padding: 56px 32px 64px; text-align: left; min-height: 480px; }
+  .s-mkt-eyebrow { font-size: 12px; color: var(--c-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+  .s-mkt-h1 { font-family: var(--f-heading); font-size: clamp(32px, 5vw, 56px); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 18px; max-width: 720px; }
+  .s-mkt-lead { font-size: 17px; color: var(--c-text-sec); max-width: 580px; line-height: 1.5; margin-bottom: 24px; }
+  .s-mkt-cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 56px; }
+  .s-mkt-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; padding-top: 40px; border-top: 1px solid var(--c-border); }
+  .s-mkt-feat-h { font-family: var(--f-heading); font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .s-mkt-feat-p { font-size: 14px; color: var(--c-text-sec); line-height: 1.5; }
+
+  /* CONTENT (long-form) surface */
+  .s-art { padding: 48px 32px 64px; max-width: 720px; margin: 0 auto; min-height: 480px; }
+  .s-art-meta { font-size: 12px; color: var(--c-text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .s-art-h1 { font-family: var(--f-heading); font-size: clamp(28px, 4vw, 40px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 20px; }
+  .s-art p { font-size: 17px; line-height: 1.65; color: var(--c-text); margin-bottom: 18px; }
+  .s-art p strong { color: var(--c-text); font-weight: 600; }
+  .s-art-pull {
+    border-left: 3px solid var(--c-primary);
+    padding-left: 20px; margin: 28px 0;
+    font-family: var(--f-heading); font-size: 22px; font-weight: 600;
+    line-height: 1.35; color: var(--c-text);
+    letter-spacing: -0.01em;
+  }
+  .s-art-figure {
+    background: var(--c-surface); border: 1px solid var(--c-border);
+    border-radius: var(--r-md); padding: 24px; margin: 28px 0;
+    font-size: 13px; color: var(--c-text-muted); text-align: center;
+  }
+
+  /* FORM (settings) surface */
+  .s-form { padding: 32px 32px 48px; max-width: 640px; margin: 0 auto; min-height: 480px; }
+  .s-form-h1 { font-family: var(--f-heading); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .s-form-sub { font-size: 13px; color: var(--c-text-muted); margin-bottom: 24px; }
+  .s-form-group { margin-bottom: 20px; }
+  .s-form-label { display: block; font-size: 13px; font-weight: 600; color: var(--c-text); margin-bottom: 6px; }
+  .s-form-help { font-size: 12px; color: var(--c-text-muted); margin-top: 4px; }
+  .s-form-input, .s-form-select, .s-form-textarea {
+    width: 100%;
+    background: var(--c-bg);
+    color: var(--c-text);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-sm);
+    padding: 8px 12px;
+    font-size: 14px; font-family: inherit;
+    outline: none; transition: border-color 120ms, box-shadow 120ms;
+  }
+  .s-form-input:focus, .s-form-select:focus, .s-form-textarea:focus {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 3px var(--c-primary-subtle);
+  }
+  .s-form-textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+  .s-form-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-top: 1px solid var(--c-border); }
+  .s-form-toggle-row:last-of-type { border-bottom: 1px solid var(--c-border); margin-bottom: 24px; }
+  .s-form-toggle-info strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .s-form-toggle-info span { font-size: 12px; color: var(--c-text-muted); }
+  .s-form-actions { display: flex; gap: 10px; padding-top: 16px; }
+
+  /* PRICING surface */
+  .s-price { padding: 48px 32px 56px; min-height: 480px; }
+  .s-price-h1 { font-family: var(--f-heading); font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.02em; text-align: center; margin-bottom: 8px; }
+  .s-price-sub { font-size: 15px; color: var(--c-text-sec); text-align: center; max-width: 520px; margin: 0 auto 36px; }
+  .s-price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; max-width: 960px; margin: 0 auto; }
+  .s-price-card {
+    background: var(--c-surface); border: 1px solid var(--c-border);
+    border-radius: var(--r-md); padding: 24px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .s-price-card.featured { border-color: var(--c-primary); position: relative; }
+  .s-price-card.featured::before {
+    content: 'Most popular'; position: absolute; top: -10px; left: 24px;
+    background: var(--c-primary); color: #fff;
+    font-size: 10px; font-weight: 700; padding: 3px 8px;
+    border-radius: var(--r-sm); letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .s-price-tier { font-family: var(--f-heading); font-size: 14px; font-weight: 600; color: var(--c-text-sec); }
+  .s-price-amount { font-family: var(--f-heading); font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
+  .s-price-amount span { font-size: 13px; color: var(--c-text-muted); font-weight: 400; margin-left: 2px; }
+  .s-price-list { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-top: 1px solid var(--c-border); }
+  .s-price-list li { font-size: 13px; color: var(--c-text-sec); padding-left: 18px; position: relative; }
+  .s-price-list li::before { content: ''; position: absolute; left: 0; top: 6px; width: 10px; height: 5px; border-left: 2px solid var(--c-primary); border-bottom: 2px solid var(--c-primary); transform: rotate(-45deg); }
+
+  /* shared button + atoms */
+  .b-primary, .b-secondary, .b-ghost {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 8px 16px; font-size: 14px; font-weight: 600;
+    border-radius: var(--r-sm); cursor: pointer; border: 1px solid transparent;
+    font-family: inherit; transition: background 120ms, color 120ms, border-color 120ms;
+    line-height: 1.4;
+  }
+  .b-primary { background: var(--c-primary); color: #fff; }
+  .b-primary:hover { background: var(--c-primary-hover); }
+  .b-secondary { background: transparent; color: var(--c-text); border-color: var(--c-border); }
+  .b-secondary:hover { border-color: var(--c-primary); color: var(--c-primary); }
+  .b-ghost { background: transparent; color: var(--c-primary); }
+  .b-lg { padding: 12px 22px; font-size: 15px; }
+
+  /* Compare-mode mini surface = simplified dashboard fragment */
+  .candidate-stage .s-dash { min-height: 320px; }
+  .candidate-stage .s-dash-side { width: 140px; padding: 14px 10px; }
+  .candidate-stage .s-dash-side-title { font-size: 12px; }
+  .candidate-stage .s-dash-nav-item { font-size: 12px; padding: 5px 8px; }
+  .candidate-stage .s-dash-main { padding: 18px; }
+  .candidate-stage .s-dash-h1 { font-size: 18px; }
+  .candidate-stage .s-dash-sub { font-size: 12px; margin-bottom: 14px; }
+  .candidate-stage .s-dash-stats { gap: 8px; margin-bottom: 14px; }
+  .candidate-stage .s-dash-stat { padding: 10px; }
+  .candidate-stage .s-dash-stat-val { font-size: 18px; }
+  .candidate-stage .s-dash-row { font-size: 12px; padding: 8px 12px; }
+
+  .candidate-stage .s-mkt { padding: 28px 20px 32px; min-height: 320px; }
+  .candidate-stage .s-mkt-h1 { font-size: 24px; line-height: 1.1; margin-bottom: 12px; }
+  .candidate-stage .s-mkt-lead { font-size: 14px; margin-bottom: 18px; }
+  .candidate-stage .s-mkt-cta-row { margin-bottom: 28px; }
+  .candidate-stage .s-mkt-features { padding-top: 20px; gap: 18px; }
+
+  .candidate-stage .s-art { padding: 24px 22px; min-height: 320px; }
+  .candidate-stage .s-art-h1 { font-size: 22px; margin-bottom: 14px; }
+  .candidate-stage .s-art p { font-size: 14px; margin-bottom: 12px; }
+  .candidate-stage .s-art-pull { font-size: 16px; margin: 18px 0; padding-left: 14px; }
+
+  .candidate-stage .s-form { padding: 22px 22px 28px; min-height: 320px; }
+  .candidate-stage .s-form-h1 { font-size: 18px; }
+  .candidate-stage .s-form-sub { font-size: 12px; margin-bottom: 16px; }
+
+  .candidate-stage .s-price { padding: 24px 18px; min-height: 320px; }
+  .candidate-stage .s-price-h1 { font-size: 20px; margin-bottom: 4px; }
+  .candidate-stage .s-price-sub { font-size: 13px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div id="root"><p style="color:#888;text-align:center;padding:80px 0;font-size:14px;">Loading design config…</p></div>
+<script src="design-config.js"></script>
+<script>
+(function() {
+  const C = window.__DESIGN_CONFIG__;
+  if (!C) {
+    document.getElementById('root').innerHTML =
+      '<p style="color:#c00;text-align:center;padding:80px 0;font-size:14px;">Missing /tmp/design-config.js</p>';
+    return;
+  }
+
+  const root = document.getElementById('root');
+  root.innerHTML = '';
+
+  // Surface options the user can switch between (full mode)
+  const SURFACES = [
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'marketing', label: 'Marketing' },
+    { id: 'content',   label: 'Article'   },
+    { id: 'form',      label: 'Form'      },
+    { id: 'pricing',   label: 'Pricing'   }
+  ];
+
+  function loadFonts(names) {
+    const set = [...new Set(names.filter(Boolean))];
+    if (!set.length) return;
+    const url = 'https://fonts.googleapis.com/css2?' +
+      set.map(f => 'family=' + encodeURIComponent(f) + ':wght@400;500;600;700;800').join('&') +
+      '&display=swap';
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'; link.href = url;
+    document.head.appendChild(link);
+  }
+
+  function applyTokens(el, opt) {
+    const c = opt.colors, f = opt.fonts || {}, r = opt.radius || { sm:'4px', md:'8px', lg:'12px' };
+    el.style.setProperty('--c-primary',         c.primary);
+    el.style.setProperty('--c-primary-hover',   c.primaryHover || c.primary);
+    el.style.setProperty('--c-primary-subtle',  c.primarySubtle || 'rgba(0,0,0,0.04)');
+    el.style.setProperty('--c-bg',              c.bg);
+    el.style.setProperty('--c-surface',         c.surface);
+    el.style.setProperty('--c-border',          c.border);
+    el.style.setProperty('--c-text',            c.text);
+    el.style.setProperty('--c-text-sec',        c.textSecondary);
+    el.style.setProperty('--c-text-muted',      c.textMuted);
+    el.style.setProperty('--c-success',         c.success || '#16a34a');
+    el.style.setProperty('--c-warning',         c.warning || '#d97706');
+    el.style.setProperty('--c-error',           c.error   || '#dc2626');
+    el.style.setProperty('--c-info',            c.info    || '#2563eb');
+    el.style.setProperty('--f-heading',         '"' + (f.heading || 'system-ui') + '", -apple-system, sans-serif');
+    el.style.setProperty('--f-body',            '"' + (f.body    || 'system-ui') + '", -apple-system, sans-serif');
+    el.style.setProperty('--r-sm',              r.sm || '4px');
+    el.style.setProperty('--r-md',              r.md || '8px');
+    el.style.setProperty('--r-lg',              r.lg || '12px');
+  }
+
+  // ====== Surface renderers (return innerHTML strings) ======
+
+  function renderSurface(id) {
+    if (id === 'marketing') return surfaceMarketing();
+    if (id === 'content')   return surfaceContent();
+    if (id === 'form')      return surfaceForm();
+    if (id === 'pricing')   return surfacePricing();
+    return surfaceDashboard();
+  }
+
+  function surfaceDashboard() {
+    return `
+      <div class="s-dash">
+        <aside class="s-dash-side">
+          <div class="s-dash-side-title">Acme</div>
+          <nav class="s-dash-nav">
+            <div class="s-dash-nav-item active">Overview</div>
+            <div class="s-dash-nav-item">Projects</div>
+            <div class="s-dash-nav-item">Team</div>
+            <div class="s-dash-nav-item">Billing</div>
+            <div class="s-dash-nav-item">Settings</div>
+          </nav>
+        </aside>
+        <main class="s-dash-main">
+          <h1 class="s-dash-h1">Overview</h1>
+          <p class="s-dash-sub">A look at how the project is performing this week.</p>
+          <div class="s-dash-stats">
+            <div class="s-dash-stat">
+              <div class="s-dash-stat-label">Active users</div>
+              <div class="s-dash-stat-val">2,847</div>
+              <div class="s-dash-stat-trend">+12.5%</div>
+            </div>
+            <div class="s-dash-stat">
+              <div class="s-dash-stat-label">Revenue</div>
+              <div class="s-dash-stat-val">$48.2k</div>
+              <div class="s-dash-stat-trend">+8.1%</div>
+            </div>
+            <div class="s-dash-stat">
+              <div class="s-dash-stat-label">Conversion</div>
+              <div class="s-dash-stat-val">3.4%</div>
+              <div class="s-dash-stat-trend">+0.6%</div>
+            </div>
+          </div>
+          <div class="s-dash-table">
+            <div class="s-dash-row s-dash-row-head">
+              <div>Project</div><div>Owner</div><div>Status</div><div></div>
+            </div>
+            <div class="s-dash-row">
+              <div>Design system audit</div>
+              <div style="color:var(--c-text-muted);">Sarah</div>
+              <div><span class="s-dash-badge s-dash-badge-s">Active</span></div>
+              <button class="b-ghost" style="padding:4px 8px;font-size:12px;">Open</button>
+            </div>
+            <div class="s-dash-row">
+              <div>API integration v2</div>
+              <div style="color:var(--c-text-muted);">Marcus</div>
+              <div><span class="s-dash-badge s-dash-badge-w">Pending</span></div>
+              <button class="b-ghost" style="padding:4px 8px;font-size:12px;">Open</button>
+            </div>
+            <div class="s-dash-row">
+              <div>Mobile responsive pass</div>
+              <div style="color:var(--c-text-muted);">Jia</div>
+              <div><span class="s-dash-badge s-dash-badge-i">Draft</span></div>
+              <button class="b-ghost" style="padding:4px 8px;font-size:12px;">Open</button>
+            </div>
+          </div>
+        </main>
+      </div>`;
+  }
+
+  function surfaceMarketing() {
+    return `
+      <div class="s-mkt">
+        <div class="s-mkt-eyebrow">Acme · For modern teams</div>
+        <h1 class="s-mkt-h1">Ship faster without losing the thread.</h1>
+        <p class="s-mkt-lead">A single workspace for the messy middle of building software — issues, decisions, and the changelog, kept in one place.</p>
+        <div class="s-mkt-cta-row">
+          <button class="b-primary b-lg">Start free</button>
+          <button class="b-secondary b-lg">Read the changelog</button>
+        </div>
+        <div class="s-mkt-features">
+          <div>
+            <div class="s-mkt-feat-h">One source of truth</div>
+            <p class="s-mkt-feat-p">Issues, docs, and decisions live next to the code, searchable from one bar.</p>
+          </div>
+          <div>
+            <div class="s-mkt-feat-h">Built for keyboards</div>
+            <p class="s-mkt-feat-p">Every action has a shortcut. The mouse is optional.</p>
+          </div>
+          <div>
+            <div class="s-mkt-feat-h">Audit-friendly history</div>
+            <p class="s-mkt-feat-p">Every change is signed, attributed, and reversible.</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function surfaceContent() {
+    return `
+      <article class="s-art">
+        <div class="s-art-meta">Design · 8 min read · 18 Apr 2026</div>
+        <h1 class="s-art-h1">A design system that survives its first year</h1>
+        <p>Most design systems collapse the moment a real product hits them. The reason is rarely the tokens themselves — it's that the system was specified in <strong>terms of components</strong>, not in terms of decisions.</p>
+        <p>What you actually want is a record of every choice the team has already made, so the next contributor can either reuse it or argue with it. That's it.</p>
+        <blockquote class="s-art-pull">A design system is not a component library. It is the documentation of every taste decision your team has made — and is willing to defend.</blockquote>
+        <p>The implication: the spec must be opinionated and contain reasoning. "Buttons are 8px radius" is not a spec; it's a hex code. "Buttons are 8px radius because we picked balance over softness" is a spec — and the next person can disagree explicitly.</p>
+        <div class="s-art-figure">[ figure: token decision diagram ]</div>
+        <p>This is also why design systems shouldn't ship as a Figma library alone. Figma stores the result; it doesn't store the argument.</p>
+      </article>`;
+  }
+
+  function surfaceForm() {
+    return `
+      <div class="s-form">
+        <h1 class="s-form-h1">Workspace settings</h1>
+        <p class="s-form-sub">Changes apply to everyone in this workspace.</p>
+        <div class="s-form-group">
+          <label class="s-form-label">Workspace name</label>
+          <input class="s-form-input" type="text" value="Acme">
+        </div>
+        <div class="s-form-group">
+          <label class="s-form-label">URL slug</label>
+          <input class="s-form-input" type="text" value="acme">
+          <div class="s-form-help">Lowercase letters, numbers, and dashes only.</div>
+        </div>
+        <div class="s-form-group">
+          <label class="s-form-label">Primary contact</label>
+          <select class="s-form-select"><option>sarah@acme.co</option><option>marcus@acme.co</option></select>
+        </div>
+        <div class="s-form-group">
+          <label class="s-form-label">Description</label>
+          <textarea class="s-form-textarea">A workspace for our design system experiments.</textarea>
+        </div>
+        <div class="s-form-toggle-row">
+          <div class="s-form-toggle-info">
+            <strong>Public discoverability</strong>
+            <span>Allow anyone with the URL to view your public pages.</span>
+          </div>
+          <button class="b-secondary" style="padding:6px 14px;font-size:13px;">Off</button>
+        </div>
+        <div class="s-form-toggle-row">
+          <div class="s-form-toggle-info">
+            <strong>Two-factor for everyone</strong>
+            <span>Require all members to enable 2FA before they can sign in.</span>
+          </div>
+          <button class="b-primary" style="padding:6px 14px;font-size:13px;">On</button>
+        </div>
+        <div class="s-form-actions">
+          <button class="b-primary">Save changes</button>
+          <button class="b-secondary">Cancel</button>
+        </div>
+      </div>`;
+  }
+
+  function surfacePricing() {
+    return `
+      <div class="s-price">
+        <h1 class="s-price-h1">Pricing that grows with the team</h1>
+        <p class="s-price-sub">Start free. Add seats only when you need them.</p>
+        <div class="s-price-grid">
+          <div class="s-price-card">
+            <div class="s-price-tier">Starter</div>
+            <div class="s-price-amount">Free<span></span></div>
+            <ul class="s-price-list">
+              <li>Up to 3 seats</li>
+              <li>Unlimited projects</li>
+              <li>Community support</li>
+            </ul>
+            <button class="b-secondary">Get started</button>
+          </div>
+          <div class="s-price-card featured">
+            <div class="s-price-tier">Team</div>
+            <div class="s-price-amount">$12<span>/seat / month</span></div>
+            <ul class="s-price-list">
+              <li>Unlimited seats</li>
+              <li>SSO and audit log</li>
+              <li>Priority support</li>
+              <li>API access</li>
+            </ul>
+            <button class="b-primary">Start trial</button>
+          </div>
+          <div class="s-price-card">
+            <div class="s-price-tier">Enterprise</div>
+            <div class="s-price-amount">Custom<span></span></div>
+            <ul class="s-price-list">
+              <li>Custom contracts</li>
+              <li>Dedicated infrastructure</li>
+              <li>Service-level agreement</li>
+            </ul>
+            <button class="b-secondary">Contact sales</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ====== Mode dispatch ======
+
+  if (C.mode === 'compare') renderCompare();
+  else renderFull();
+
+  // ====== COMPARE MODE ======
+  function renderCompare() {
+    const surface = C.surface || 'dashboard';
+    const fonts = [];
+    C.options.forEach(o => { if (o.fonts) { fonts.push(o.fonts.heading, o.fonts.body); } });
+    loadFonts(fonts);
+
+    // chrome
+    const chrome = document.createElement('div');
+    chrome.className = 'chrome-bar';
+    chrome.innerHTML = `
+      <div class="chrome-title">Compare directions <small>${C.options.length} options · same content, different tokens</small></div>
+      <span class="chrome-label">Surface</span>
+      <div class="chrome-group" id="surface-switcher">
+        ${SURFACES.map(s => `<button class="chrome-btn ${s.id===surface?'active':''}" data-surface="${s.id}">${s.label}</button>`).join('')}
+      </div>
+    `;
+    root.appendChild(chrome);
+
+    const stage = document.createElement('div');
+    stage.className = 'stage';
+
+    if (C.title || C.subtitle) {
+      const head = document.createElement('div');
+      head.className = 'compare-header';
+      head.innerHTML = `${C.title ? `<h1>${C.title}</h1>` : ''}${C.subtitle ? `<p>${C.subtitle}</p>` : ''}`;
+      stage.appendChild(head);
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'compare-grid';
+    stage.appendChild(grid);
+    root.appendChild(stage);
+
+    function paint(s) {
+      grid.innerHTML = '';
+      C.options.forEach(opt => {
+        const card = document.createElement('div');
+        card.className = 'candidate';
+        const c = opt.colors, f = opt.fonts || {}, r = opt.radius || { sm:'4px', md:'8px', lg:'12px' };
+        card.innerHTML = `
+          <div class="candidate-head">
+            <span class="candidate-label">${opt.label || ''}</span>
+            <div class="candidate-meta">
+              ${opt.family ? `<div class="candidate-family">${opt.family}</div>` : ''}
+              <div class="candidate-subtitle">${opt.subtitle || ''}</div>
+            </div>
+          </div>
+          <div class="candidate-stage">${renderSurface(s)}</div>
+          <div class="candidate-tokens">
+            <div class="token-row">
+              <strong>Color</strong>
+              <span class="token-swatch" style="background:${c.primary};" title="primary"></span>
+              <span class="token-swatch" style="background:${c.bg};" title="bg"></span>
+              <span class="token-swatch" style="background:${c.surface};" title="surface"></span>
+              <span class="token-swatch" style="background:${c.text};" title="text"></span>
+              <span class="token-swatch" style="background:${c.border};" title="border"></span>
+            </div>
+            <div class="token-row">
+              <strong>Type</strong>
+              <span class="token-pill">${f.heading || 'system'}</span>
+              <span class="token-pill">${f.body || 'system'}</span>
+            </div>
+            <div class="token-row">
+              <strong>Radius</strong>
+              <span class="token-pill">${r.sm}</span>
+              <span class="token-pill">${r.md}</span>
+              ${r.lg ? `<span class="token-pill">${r.lg}</span>` : ''}
+            </div>
+          </div>
+        `;
+        applyTokens(card.querySelector('.candidate-stage'), opt);
+        grid.appendChild(card);
+      });
+    }
+
+    paint(surface);
+
+    chrome.querySelectorAll('[data-surface]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        chrome.querySelectorAll('[data-surface]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        paint(btn.dataset.surface);
+      });
+    });
+
+    document.title = C.title || 'Design Compare';
+  }
+
+  // ====== FULL MODE ======
+  function renderFull() {
+    const fonts = [C.fonts.heading, C.fonts.body, C.fonts.mono];
+    loadFonts(fonts);
+
+    const surfaces = (C.surfaces && C.surfaces.length) ? C.surfaces : SURFACES.map(s => s.id);
+    const surfaceList = SURFACES.filter(s => surfaces.includes(s.id));
+    let currentSurface = C.defaultSurface && surfaces.includes(C.defaultSurface) ? C.defaultSurface : surfaceList[0].id;
+    let currentViewport = 'desktop';
+    let darkMode = false;
+
+    // chrome
+    const chrome = document.createElement('div');
+    chrome.className = 'chrome-bar';
+    chrome.innerHTML = `
+      <div class="chrome-title">${C.name || 'Design System'} ${C.family ? `<small>· ${C.family}</small>` : ''}</div>
+      <span class="chrome-label">Surface</span>
+      <div class="chrome-group" id="surface-switcher">
+        ${surfaceList.map(s => `<button class="chrome-btn ${s.id===currentSurface?'active':''}" data-surface="${s.id}">${s.label}</button>`).join('')}
+      </div>
+      <span class="chrome-label">Viewport</span>
+      <div class="chrome-group" id="viewport-switcher">
+        <button class="chrome-btn active" data-viewport="desktop">Desktop</button>
+        <button class="chrome-btn" data-viewport="tablet">Tablet</button>
+        <button class="chrome-btn" data-viewport="mobile">Mobile</button>
+      </div>
+      <span class="chrome-label">Theme</span>
+      <div class="chrome-group" id="theme-switcher">
+        <button class="chrome-btn active" data-theme="light">Light</button>
+        <button class="chrome-btn" data-theme="dark" ${C.colors.dark ? '' : 'disabled title="No dark tokens defined"'}>Dark</button>
+      </div>
+    `;
+    root.appendChild(chrome);
+
+    const stage = document.createElement('div');
+    stage.className = 'stage';
+    const frame = document.createElement('div');
+    frame.className = 'full-frame';
+    stage.appendChild(frame);
+    root.appendChild(stage);
+
+    function paint() {
+      frame.classList.toggle('dark-mode', darkMode);
+      frame.className = `full-frame viewport-${currentViewport}${darkMode ? ' dark-mode' : ''}`;
+
+      // build a synthetic option to reuse applyTokens
+      const c = { ...C.colors };
+      if (darkMode && C.colors.dark) Object.assign(c, C.colors.dark);
+      applyTokens(frame, { colors: c, fonts: C.fonts, radius: C.radius });
+      frame.innerHTML = renderSurface(currentSurface);
+    }
+    paint();
+
+    chrome.querySelectorAll('[data-surface]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        chrome.querySelectorAll('[data-surface]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSurface = btn.dataset.surface;
+        paint();
+      });
+    });
+    chrome.querySelectorAll('[data-viewport]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        chrome.querySelectorAll('[data-viewport]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentViewport = btn.dataset.viewport;
+        paint();
+      });
+    });
+    chrome.querySelectorAll('[data-theme]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        chrome.querySelectorAll('[data-theme]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        darkMode = btn.dataset.theme === 'dark';
+        paint();
+      });
+    });
+
+    document.title = `Design Preview — ${C.name || 'Project'}`;
+  }
+})();
+</script>
+</body>
+</html>

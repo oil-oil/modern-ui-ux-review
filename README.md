@@ -1,186 +1,179 @@
 # oiloil-ui-ux-guide
 
-一个面向现代简洁界面的 Codex Skill。  
-它把 UI/UX 建议变成可执行改法，重点解决两类问题：
+一套 **风格中性** 的 UI/UX 咨询 Skill。它不是一个"特定审美的助手"，而是一个 **耐心的访谈者**：
 
-- 评审结论过于空泛，难落地到代码
-- 页面提示越加越多，最后变成“提示墙”
+- 不预设你的产品该长什么样
+- 不强加单一风格的字体 / 色彩 / 圆角偏好
+- 先听你的产品、品牌、参考、约束，再给选项
+- 给出的选项是平等并列的，不带"推荐星标"——除非你主动问"你觉得呢"
 
 ## 适用场景
 
-- 新功能上线前，先拿一套稳定规则做设计把关
-- 已有页面体验不佳，需要按优先级做改造
-- 设计评审时，希望输出能直接进入开发任务
+- **新项目**：通过对话定下设计系统（颜色 / 字体 / 圆角 / 间距 / 阴影 / 动效），生成 `design-spec.md`
+- **已有项目**：评审现有 UI，按 `P0 / P1 / P2` 给修复清单
+- **单一面型**：给一种页面类型（dashboard / form / 长文等）的"该做 / 不该做"规则
 
-## 这个 Skill 能做什么
+## 三种模式（默认 `design`）
 
-这个 Skill 有两种模式：
+未指定模式时进入 `design`。其他模式需要显式触发。
 
-- `guide`：给出简洁、可执行的“该做 / 不该做”规则
-- `review`：评审现有界面并输出 `P0 / P1 / P2` 修复清单
+| 模式 | 用途 | 默认？ |
+|---|---|---|
+| `design` | 通过对话定制项目专属的 design spec，最终在项目根目录生成 `design-spec.md` | 默认 |
+| `guide` | 给定页面类型，输出"该做 / 不该做"规则 | 显式触发 |
+| `review` | 评审现有界面，输出 `P0 / P1 / P2` 修复清单 | 显式触发 |
 
-核心能力包括：
+**Skill 不会被轻量问题触发**——"这两个蓝色哪个好看"这种问题它会直接答，不会启动整套对话流程。
 
-- 任务优先：主任务与主操作在 3 秒内可识别
-- 提示分层：只保留必要信息，减少长期平铺文案
-- 状态闭环：覆盖加载 / 空 / 错误 / 成功 / 权限
-- 诊断方法：区分执行鸿沟、评估鸿沟、Slip 与 Mistake
-- 视觉规范：强调 CRAP（对比/重复/对齐/亲密性）与间距规整
-- 图标规范：禁止 emoji 图标，要求统一图标集
+## 核心范式：UX Hard Rules vs Style Lens
+
+旧版本把"现代极简"风格的 token 偏好当成全局硬规则（禁止 Inter、禁止纯黑、禁止圆角 >12px、强制 OKLCH 等）。这不通用——同样的规则用在儿童产品、奢侈品、游戏、品牌强烈的项目上反而是限制。
+
+新版本把规则严格分成两层：
+
+### UX Hard Rules（10 条，跨风格不可妥协）
+
+任务优先 / 状态闭环 / Affordance / 错误预防 / 反馈闭环 / 一致性 / CRAP / 间距规整 / 提示分层 L0–L3 / UI 文案纪律——这些是感知与认知层面的事实，不是审美。
+
+### Style Lens（8 个风格家族，项目自选）
+
+| Family | 一句话 | 参考 |
+|---|---|---|
+| `modern-minimal` | 留白 + 排版 + 克制色彩 + 锐利网格 | Linear, Vercel, Notion |
+| `editorial` | 长文友好、衬线标题、宽松版心 | Medium, Substack, NYT |
+| `brutal` | 原始、等宽、硬阴影、刻意粗糙 | 独立 maker 站点、Vercel brutal templates |
+| `playful` | 大圆角、饱和色、弹性动效、插画 | Duolingo, MailChimp, Notion 早期 |
+| `premium-luxury` | 优雅衬线、留白即价值、缓慢动效 | Aesop, Hermès, Apple Music |
+| `tech-cyberpunk` | 暗色优先、霓虹强调、等宽密集 | GitHub dark, Vercel docs, Cursor |
+| `warm-content` | 暖色中性、舒适阅读、柔软表面 | Are.na, Notion light, Craft |
+| `brand-driven` | 所有 token 来自现有品牌资产 | 项目自身的 brand book |
+
+每个家族都有自己的字体推荐 / 色彩倾向 / 圆角范围 / 动效语汇 / 反 AI 缺陷。**这些规则是家族内部的，不会跨家族适用**——`modern-minimal` 不喜欢 Inter，`tech-cyberpunk` 拥抱 Geist Mono，`playful` 允许 bounce。Skill 不会用一个家族的规则去批评另一个家族的项目。
+
+## `design` 模式的对话节奏
+
+```
+Phase 0  Scan code (silent, 强制)
+   ↓
+Phase 1  Listen — 开放式提问，不抛推荐
+   ↓
+Phase 2  Style family — 用户已说清就确认，否则展示 2–4 个并列家族
+   ↓
+Phase 3  Visual choices — 每个 token 给 2–3 个选项，无星标
+   ↓
+Phase 4  Full preview — 在 dashboard / marketing / content / form / pricing 多个面型上预览，可切 dark mode + viewport
+   ↓
+Phase 5  Output design-spec.md
+```
+
+**硬性前置**：进入 `design` 之后，Skill 会先静默扫一遍代码（Tailwind / theme / CSS 变量 / UI 框架 / 关键 UI 文件），形成对现有 design tokens 一致性的事实判断（不是好坏判决），再以一段总结开口。**不会在没看代码的情况下问任何问题**。
+
+完整流程见 `skills/oiloil-ui-ux-guide/references/design-interview.md`。
+
+## 可视化预览模板
+
+`references/design-preview-template.html` 是一个 **风格中性的静态预览模板**——它的外壳（chrome）刻意保持灰白色调，不抢戏。每次迭代只重写 JSON config，用户刷新浏览器即可。
+
+模板支持：
+
+- **Compare 模式** — 多个候选 token 集并排展示，**渲染同一个真实面型**（dashboard / marketing / content / form / pricing），方便横向对比
+- **Full 模式** — 完整设计系统应用到上述 5 个面型上，带 **viewport 切换**（desktop / tablet / mobile）和 **dark mode 切换**
 
 ## 跨工具支持（Codex / Claude Code / Cursor / Windsurf）
 
-结论先说：目前没有一个被所有工具完全统一的“单文件标准”。  
-实践里最稳的做法是：
+- `AGENTS.md` 作为跨工具共享指令入口
+- `CLAUDE.md`、`.cursor/rules/*.mdc` 桥接到 `AGENTS.md`
+- `skills/oiloil-ui-ux-guide/SKILL.md` 是 Skill 行为的真实定义
 
-- 用 `AGENTS.md` 作为跨工具通用指令入口（单一真源）
-- 用各工具的适配文件做轻量桥接（例如 `CLAUDE.md`、`.cursor/rules/*.mdc`）
-- 保留 `SKILL.md` 作为本 Skill 的行为定义
+## 安装
 
-当前仓库已按这个方式配置。
-
-## 各工具如何使用
-
-- Codex：原生 Skill 工作流，读取 `SKILL.md` 与 `agents/openai.yaml`
-- Claude Code：项目内读取 `CLAUDE.md`（已桥接到 `AGENTS.md` + `SKILL.md`）
-- Cursor：可读取 `AGENTS.md`，并支持 `.cursor/rules/*.mdc`
-- Windsurf：支持 `AGENTS.md` 作为项目级代理指令
-
-## 用 `skills` CLI 一键安装到多个 Agent（推荐）
-
-你可以直接使用 [vercel-labs/skills](https://github.com/vercel-labs/skills) 的 CLI，把这个 Skill 安装到多个 Agent。
-
-### 先列出仓库里的可安装 Skill
+### 用 `skills` CLI 一键安装到多个 Agent
 
 ```bash
-npx skills add oil-oil/oiloil-ui-ux-guide --list
+npx skills add oil-oil/ui-ux-guide --list
+npx skills add oil-oil/ui-ux-guide -a codex -a claude-code -a cursor -a windsurf
+# 全局
+npx skills add oil-oil/ui-ux-guide -g -a codex -a claude-code -a cursor -a windsurf
 ```
 
-### 一次安装到多个 Agent
+### 手动复制
 
 ```bash
-npx skills add oil-oil/oiloil-ui-ux-guide \
-  -a codex \
-  -a claude-code \
-  -a cursor \
-  -a windsurf
+git clone https://github.com/oil-oil/ui-ux-guide ~/.codex/skills/oiloil-ui-ux-guide
 ```
 
-### 全局安装（跨项目可用）
+## 触发方式
 
-```bash
-npx skills add oil-oil/oiloil-ui-ux-guide \
-  -g \
-  -a codex \
-  -a claude-code \
-  -a cursor \
-  -a windsurf
-```
+两种方式：
 
-说明：
+1. 显式点名 — `请使用 $oiloil-ui-ux-guide 帮我把这个项目的设计规范定下来。`
+2. 描述任务 — "帮我定一套这个项目的颜色和字体" / "评审这个仪表盘" / "给我表单页的 UX 规则"
 
-- `-a` 指定目标 Agent
-- `-g` 安装到用户目录（全局）
-- 如果你只想安装这个仓库内某个 Skill，可加 `--skill <name>`
-
-## 安装与配置（Codex）
-
-### 方式 A：通过 GitHub 安装（推荐）
-
-在 Codex 环境执行：
-
-```bash
-scripts/install-skill-from-github.py --repo oil-oil/oiloil-ui-ux-guide --path .
-```
-
-### 方式 B：手动安装
-
-将仓库复制到：
-
-```bash
-~/.codex/skills/oiloil-ui-ux-guide
-```
-
-建议目录结构：
-
-```text
-~/.codex/skills/oiloil-ui-ux-guide/
-  AGENTS.md
-  CLAUDE.md
-  .cursor/rules/oiloil-ui-ux-guide.mdc
-  agents/openai.yaml
-  index.html
-  skills/
-    oiloil-ui-ux-guide/
-      SKILL.md
-      references/
-```
-
-安装后重启 Codex，使新 Skill 生效。
-
-> 如果你已经使用上面的 `npx skills add` 安装到 Codex，可以跳过本节。
-
-## 让不同 AI 正确触发这个 Skill
-
-你可以用两种方式触发：
-
-1. 显式点名 Skill
-   - `请使用 $oiloil-ui-ux-guide 评审这个设置页。`
-2. 直接描述匹配任务
-   - “帮我评审这个仪表盘，按 P0/P1/P2 给修复建议。”
-   - “给我这个创建流程的简洁 UX 规则，重点防止提示堆叠。”
-
-建议在 Claude/Cursor/Windsurf 里也显式带上 `oiloil-ui-ux-guide`，这样触发更稳定。
+只描述任务、没指定模式时，Skill 默认进入 `design`。轻量问题（"这个按钮颜色对吗"）不会触发完整流程。
 
 ## 推荐提示词模板
 
-### 模板一：review（评审现有界面）
+### `design`（默认 — 定制项目设计规范）
+
+```text
+请使用 $oiloil-ui-ux-guide 帮我把这个项目的设计规范定下来。
+背景：[一句话产品 / 目标用户]
+要求：先扫一遍现有的 design tokens 再开始问我；
+我希望你听完我的回答再给选项，不要一上来就推荐风格。
+最终输出 design-spec.md 到项目根目录。
+```
+
+### `review`（评审现有界面）
 
 ```text
 请使用 $oiloil-ui-ux-guide 的 review 模式。
 背景：Web 管理后台，目标用户为首次完成配置的新用户。
-目标：提升首次配置完成率，减少误操作。
-请输出：
-1) 关键假设
-2) P0/P1/P2 问题清单（附简短证据）
-3) 每个问题的可执行修复方案（布局/组件/文案/状态）
-4) 验收检查点
+请输出 P0/P1/P2 问题清单 + 每个问题的可执行修复 + 验收检查点。
+注意：不要按某种风格家族评判我们 — 我们目前还没定型。
 ```
 
-### 模板二：guide（先出规则再设计）
+### `guide`（先出规则）
 
 ```text
 请使用 $oiloil-ui-ux-guide 的 guide 模式。
-页面类型：B 端设置页。
-请输出简洁的“该做 / 不该做”规则，并覆盖：
-- 主任务与主操作层级
-- 提示分层
-- 状态闭环
-- 间距/重复/规整
-要求：避免长段落，尽量用要点。
+页面类型：B 端长表单（8 个字段）。
+请输出该做 / 不该做规则，覆盖：CTA 层级、状态、affordance、错误预防、提示分层、间距。
+要求：纯要点，不要长段落。
 ```
-
-## 输出风格（预期结果）
-
-- 结论短、重点清楚，不写空泛套话
-- 每条建议都能落到界面与代码层面
-- 优先级明确，便于排期执行
-- 末尾有验收点，方便验证改造是否有效
 
 ## 仓库结构
 
-- `AGENTS.md`：跨工具共享指令（推荐作为单一真源）
-- `CLAUDE.md`：Claude Code 入口（桥接到共享指令）
-- `.cursor/rules/oiloil-ui-ux-guide.mdc`：Cursor 规则入口（桥接到共享指令）
-- `agents/openai.yaml`：Skill 展示信息与默认提示
-- `index.html`：Skill 介绍与可视化示例页面
-- `skills/oiloil-ui-ux-guide/SKILL.md`：Skill 主规则与工作流
-- `skills/oiloil-ui-ux-guide/references/system-principles.md`：系统级指导原则
-- `skills/oiloil-ui-ux-guide/references/interaction-psychology.md`：交互心理学（HCI 定律、认知偏差、交互节奏、注意力经济）
-- `skills/oiloil-ui-ux-guide/references/design-psych.md`：设计心理学诊断词汇
-- `skills/oiloil-ui-ux-guide/references/icons.md`：图标一致性与可理解性规则
-- `skills/oiloil-ui-ux-guide/references/review-template.md`：标准评审输出模板
-- `skills/oiloil-ui-ux-guide/references/checklists.md`：扩展检查清单
+```
+.
+├── AGENTS.md                                       # 跨工具共享指令
+├── CLAUDE.md                                       # Claude Code 入口
+├── .cursor/rules/oiloil-ui-ux-guide.mdc            # Cursor 桥接
+├── agents/openai.yaml                              # Codex Skill 元信息
+├── index.html                                      # Skill 介绍页
+└── skills/oiloil-ui-ux-guide/
+    ├── SKILL.md                                    # 主规则
+    ├── evals/evals.json                            # 测试用例 (8 个)
+    └── references/
+        ├── design-interview.md                     # design 模式完整流程
+        ├── design-preview-template.html            # 浏览器预览模板
+        ├── design-spec-template.md                 # design-spec.md 输出模板
+        ├── system-principles.md                    # 系统级原则
+        ├── interaction-psychology.md               # HCI 定律 / 认知偏差
+        ├── design-psych.md                         # 设计心理学诊断词汇
+        ├── icons.md                                # 图标规则
+        ├── review-template.md                      # 评审输出模板
+        ├── checklists.md                           # 各面型清单
+        └── style-families/                         # 8 个风格家族
+            ├── index.md
+            ├── modern-minimal.md
+            ├── editorial.md
+            ├── brutal.md
+            ├── playful.md
+            ├── premium-luxury.md
+            ├── tech-cyberpunk.md
+            ├── warm-content.md
+            └── brand-driven.md
+```
 
 ## 参考文档
 
@@ -191,4 +184,4 @@ scripts/install-skill-from-github.py --repo oil-oil/oiloil-ui-ux-guide --path .
 
 ## 许可证
 
-本项目采用 Apache License 2.0，详见 `LICENSE.txt`。
+Apache License 2.0，详见 `LICENSE.txt`。
