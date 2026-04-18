@@ -16,17 +16,22 @@ Behavioral rules:
 The arc of the interview:
 
 ```
-Phase 0  Scan code (silent)
+Phase 0   Scan code (silent)
    ↓
-Phase 1  Listen — open questions, no recommendations
+Phase 1   Listen — open questions, no recommendations
    ↓
-Phase 2  Style family — confirm if user already named one, else show neutral options
+Phase 2   Style family — confirm if user already named one, else show neutral options
    ↓
-Phase 3  Visual choices — present options drawn from chosen family, no stars
+Phase 3   Visual choices — present options drawn from chosen family, no stars
+            (covers: color · type · radius · spacing · shadow · motion
+                   · containerStrategy · iconSystem · decoration · locale)
    ↓
-Phase 4  Full preview — render on multiple surfaces, iterate
+Phase 4a  Generic preview — render tokens on the static template's 5 surfaces
    ↓
-Phase 5  Output design-spec.md
+Phase 4b  Business mockup — generate a standalone HTML of the user's actual product,
+            in their language, applying the full token set. ← Final review evidence.
+   ↓
+Phase 5   Output design-spec.md
 ```
 
 ---
@@ -140,26 +145,30 @@ If the user wants to combine families ("the spacing of A but the colors of B") �
 
 ## Phase 3: Visual choices
 
-For each unknown token (color, type, radius, spacing, shadow, motion), present 2–3 options drawn from the chosen family. **No starred recommendations.** Open the compare preview if the user hesitates.
+For each unknown token, present 2–3 options drawn from the chosen family. **No starred recommendations.** Open the compare preview if the user hesitates.
 
 Token-by-token order (skip whatever Phase 0 / Phase 1 already fixed):
 
 1. **Color palette** — primary + how to derive neutrals (tinted vs true gray) + semantic (success/warning/error/info).
-2. **Typography** — heading font, body font, optional mono font. The chosen family supplies a shortlist appropriate to that family.
-3. **Radius scale** — sm / md / lg. The chosen family supplies a starting tier; the user can shift up/down.
-4. **Spacing density** — compact / balanced / spacious. Drives default gap and padding values inside the 4px (or 8px) base scale.
+2. **Typography** — heading font, body font, optional mono font. The chosen family supplies a shortlist appropriate to that family. **If `locale.primary` is CJK or non-Latin, the shortlist must include locale-capable fonts** — Latin-only Plus Jakarta Sans on a Chinese product is a non-starter.
+3. **Radius scale** — sm / md / lg.
+4. **Spacing density** — compact / balanced / spacious.
 5. **Shadow / elevation** — flat / subtle / pronounced.
-6. **Motion vocabulary** — minimal / subtle / expressive. Each family has different acceptable motion ranges.
+6. **Motion vocabulary** — minimal / subtle / expressive.
+7. **Container strategy** — `border` / `tinted-surface` / `elevation` / `divider` / `none`. This is a real visual decision that distinguishes families. Don't skip. See `extended-dimensions.md`.
+8. **Icon system** — set + weight + treatment. See `extended-dimensions.md`.
+9. **Decoration policy** — gradients / textures / motifs, **per-surface** (e.g. marketing may go expressive while dashboard stays clean).
+10. **Locale** — primary + secondary supported locales. If not gathered in Phase 1, ask now. Affects font shortlist and Phase 4b mockup language.
 
 For each: ask "Any preference, or want to see the options?" Default to opening the preview if the user has no preference — visual choice is faster than verbal.
 
-When the user picks something off-family (e.g. picked `modern-minimal` but wants 16px radius) → take it. Don't try to talk them back into the family default.
+When the user picks something off-family (e.g. picked `modern-minimal` but wants 16px radius, or picked `playful` but wants `containerStrategy: border`) → take it. Don't try to talk them back into the family default. Note the deviation in `design-spec.md` so the next contributor knows it's intentional.
 
 ---
 
-## Phase 4: Full preview & iterate
+## Phase 4a: Generic preview & quick iteration
 
-Open the full-mode preview rendering the chosen tokens on **multiple surfaces** so the user sees the design system applied — not just swatches.
+Open the full-mode static preview rendering the chosen tokens on **multiple surfaces** so the user can pressure-test token decisions without committing to business content yet.
 
 Default surfaces in the preview (template supports a switcher):
 
@@ -169,7 +178,7 @@ Default surfaces in the preview (template supports a switcher):
 - Form / settings (inputs + groups + submit)
 - Pricing (3-tier card layout)
 
-The preview also has a **dark mode toggle** and a **viewport switcher** (desktop / tablet / mobile).
+The preview also has switchers for **container strategy**, **icon set**, **decoration**, **viewport** (desktop / tablet / mobile), **dark / light theme**, and **locale** (zh-CN / en / ja).
 
 ### Refinement questions (open, not leading)
 
@@ -181,13 +190,76 @@ Ask up to 3 of these per round, never more:
 
 Iterate by rewriting `/tmp/design-config.js` only — the user refreshes the browser. Don't regenerate the template HTML each time.
 
-Stop when the user says "good" or after 3 rounds of refinement, whichever comes first. If after 3 rounds the user is still uncomfortable → the chosen family was probably wrong; offer to re-run Phase 2.
+Phase 4a is for *exploration*, not for *final review*. Don't try to lock the spec here. When the tokens feel "roughly right" — even if a few details still bug the user — move to Phase 4b. The business mockup will surface issues this generic preview can't.
+
+Stop Phase 4a when the user says "looks roughly right" or after 3 rounds of refinement, whichever comes first. If after 3 rounds the user still feels lost → the chosen family was probably wrong; offer to re-run Phase 2.
+
+## Phase 4b: Business mockup (the real definition step)
+
+This is the most important phase. The skill generates a **standalone HTML file** that renders the user's *actual product surface*, in *their language*, applying *every chosen token including containerStrategy / iconSystem / decoration*.
+
+The user looks at *their own product*, makes the final ship/iterate decision, and only then does the spec get locked.
+
+### Before generating, decide what to render
+
+Re-read the user's Phase 1 inputs. The mockup needs:
+
+1. **One or two core surfaces** — the user's primary daily-use page(s). Not settings, not the about page. If unclear, ask one focused question:
+   > "Of all the screens in your product, which one would you say users spend the most time on? That's what I'll mock up first."
+2. **Realistic copy in `locale.primary`** — actual domain language ("待审核投放计划 12 条", not "Active campaigns 12"). Realistic demo data.
+3. **Real entity names and field names** — if it's a CRM, "客户名称 / 跟进阶段 / 下次联系时间", not "User / Status / Date".
+
+If the user described an industry vertical (medical / advertising / education), use vocabulary native to that vertical. If unsure, ask.
+
+### Generating the file
+
+Generate to `/tmp/business-mockup-<n>.html` where `n` is the iteration number. Keep prior iterations on disk so the user can compare.
+
+Follow `references/business-mockup-contract.md` strictly. The contract is non-negotiable; if you find yourself wanting to violate it ("I'll just use a different icon for this one place"), stop — the violation is signal that something in the spec is wrong. Iterate the spec, not the mockup.
+
+### Open the file and ask
+
+```bash
+open /tmp/business-mockup-1.html
+```
+
+Then ask one question — open, not leading:
+
+> "How does it feel? Anything you'd want to change before we lock the spec?"
+
+### Iteration loop
+
+Two kinds of feedback:
+
+- **Token feedback** ("the cards are too tight", "the green is too lime") → re-run Phase 3 to adjust the relevant token, then regenerate the mockup as iteration `n+1`. Keep the previous file so the user can compare.
+- **Content / copy feedback** ("this isn't really what our list looks like", "we don't have a 'pause' state") → regenerate with the same tokens but better content. This is also a signal that you got the business surface wrong; revisit Phase 1 mentally before regenerating.
+
+3 iterations is a usual maximum. If after 3 the user still isn't ready to lock, the issue is probably structural (wrong family, wrong primary surface choice) — name it and offer to back up to the relevant earlier phase.
+
+### When the user is satisfied
+
+Move to Phase 5. Do not lock the spec until the user has explicitly said the business mockup feels right. The mockup is the gating artifact.
+
+### When to skip Phase 4b
+
+- User explicitly says "skip the mockup, just write the spec".
+- The project is a multi-product design system, not a single product (no single business surface to mock).
+- The project is hypothetical and the user isn't ready to invent demo content.
+
+In any of these, note it in `design-spec.md` so future contributors know the spec was not validated against a real surface.
 
 ---
 
 ## Phase 5: Output
 
-Generate `design-spec.md` in the project root using `references/design-spec-template.md` as the structure. The spec is the durable artifact — future UI work in this project should reference it.
+**Precondition**: Phase 4b's business mockup has been generated and the user has explicitly said it feels right. (Skip this precondition only if Phase 4b was deliberately skipped — and note that fact in the spec.)
+
+Generate `design-spec.md` in the project root using `references/design-spec-template.md` as the structure. Make sure the spec includes:
+
+- All sections from the template, including the new sections for **container strategy** (7a), **icon system** (7b), and **decoration policy** (7c).
+- The chosen `locale` in section 1.
+- Any deviations from the chosen style family's defaults, with one-line reasoning ("we picked 16px radius despite modern-minimal's 8px default because the brand wanted a softer feel").
+- Reference back to the business mockup: a small note at the bottom saying "Validated against `business-mockup-N.html` (latest iteration)".
 
 Tell the user where the file was written and offer one follow-up:
 

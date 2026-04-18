@@ -15,6 +15,7 @@ Use this structure when generating the final `design-spec.md` in the user's proj
 - **References**: [products the user named in Phase 1]
 - **Tone**: [3 descriptors the user landed on, or N/A]
 - **Hard constraints**: [accessibility, dark mode, mobile-first, i18n, etc.]
+- **Locale**: primary `[zh-CN | en | ja | ...]`, secondary `[…]`
 
 ## 2. Color
 
@@ -85,6 +86,43 @@ Use this structure when generating the final `design-spec.md` in the user's proj
 - Allowed motion patterns: [list — e.g. fade, translate+fade, scale+fade for overlays]
 - Forbidden (in this project): [list — e.g. bounce, parallax]
 
+## 7a. Container strategy
+
+How container boundaries are expressed in this project. See `references/extended-dimensions.md` for definitions.
+
+- **Strategy**: `border` | `tinted-surface` | `elevation` | `divider` | `none`
+- **Per-surface overrides** (if any):
+  - dashboard: `[strategy]`
+  - marketing: `[strategy]`
+  - form / settings: `[strategy]`
+  - long-form content: `[strategy]`
+- Notes on implementation specifics — e.g. for `tinted-surface`: surface is `[hex]` against bg `[hex]` (a `[X]%` lightness offset). For `elevation`: `--shadow-md` is the default container shadow, `--shadow-lg` for modals only.
+
+## 7b. Icon system
+
+- **Set**: `lucide` | `phosphor` | `heroicons` | `carbon` | `tabler` | `material` | `brand-custom`
+- **Weight**: `thin` | `regular` | `bold` | `filled` (set-dependent)
+- **Treatment**: `monochrome` | `two-tone` | `brand-tinted`
+- **Sizes**: `16 / 20 / 24 px` baseline; `32 / 48 px` for empty states
+- **Primary use color**: `currentColor` (inherits text) | `--color-primary` | `--color-text-muted`
+- **Mixing**: do not mix sets within this project. If a needed icon is missing in the set, [decision: substitute closest / commission custom / omit].
+
+## 7c. Decoration
+
+Per-surface decoration policy. Each surface specifies what's allowed; surfaces not listed default to `none / none / none`.
+
+| Surface | Gradients | Textures | Motifs |
+|---|---|---|---|
+| Marketing hero | `none / subtle / expressive` | `none / noise / dot-grid / paper / scan-lines` | `none / geometric / illustration / photography / data-viz` |
+| Dashboard | … | … | … |
+| Form / settings | … | … | … |
+| Long-form content | … | … | … |
+
+Notes:
+- For `gradients = subtle`: max 1 per page, and only on [hero bg / accent button / card highlight].
+- For `textures`: implementation note (SVG noise filter, CSS background pattern, image asset).
+- For `motifs = illustration`: which library / style. For `photography`: cropping rules, treatment.
+
 ## 8. Component conventions
 
 ### Buttons
@@ -102,9 +140,7 @@ Use this structure when generating the final `design-spec.md` in the user's proj
 - Padding, radius, border vs shadow choice
 
 ### Icons
-- Set: [Lucide / Phosphor / Heroicons / custom / brand]
-- Sizes: `16 / 20 / 24 px` baseline
-- Stroke / fill convention
+- See section 7b above. (Section 8 only documents per-component icon usage exceptions, if any.)
 
 ## 9. Surfaces (templates)
 

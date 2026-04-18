@@ -1,6 +1,6 @@
 {
   "skill_name": "oiloil-ui-ux-guide",
-  "notes": "Test set covers: (a) the patient-interviewer behavior, (b) cross-project-type generality, (c) style-family neutrality, (d) overtrigger avoidance. Run with the skill loaded; assertions check behavioral properties, not exact wording.",
+  "notes": "Test set covers: (a) patient-interviewer behavior, (b) cross-project-type generality, (c) style-family neutrality, (d) overtrigger avoidance, (e) extended-dimensions modeling (container strategy, icon system, decoration, locale), (f) Phase 4b business mockup as gating artifact. Run with the skill loaded; assertions check behavioral properties, not exact wording.",
   "evals": [
     {
       "id": 1,
@@ -107,6 +107,64 @@
         {"text": "Explains the failure in user terms, not abstract 'this is bad practice'", "kind": "behavior"},
         {"text": "Offers one concrete alternative", "kind": "behavior"},
         {"text": "If the user insists, defers (does not block)", "kind": "behavior"}
+      ]
+    },
+    {
+      "id": 9,
+      "name": "design-cn-locale-business-mockup",
+      "prompt": "我在做一个广告投放计划管理后台，团队是国内电商运营，每天用 6+ 小时。希望整个产品语言是中文。帮我把设计规范定下来。",
+      "files": [],
+      "expected_output": "Skill should run Phase 0, listen, pick a family with the user, but critically: in Phase 3 the typography options must include CJK-capable fonts (Noto Sans SC, Source Han Sans, PingFang fallback) — not Latin-only options. In Phase 4b, generate a business mockup whose copy is 100% Chinese, with realistic ad-campaign domain language (投放计划/审核中/暂停/预算 etc), not English placeholders. Mockup body line-height >= 1.7 for CJK comfort.",
+      "assertions": [
+        {"text": "Phase 3 typography candidates include CJK-capable fonts (Noto Sans SC / Source Han Sans / PingFang / similar)", "kind": "behavior"},
+        {"text": "Does not propose Latin-only fonts (Plus Jakarta Sans / Geist / DM Sans alone) without CJK fallback", "kind": "behavior"},
+        {"text": "Phase 4b business mockup is generated to /tmp/business-mockup-N.html", "kind": "artifact"},
+        {"text": "All visible copy in the mockup is Chinese, with domain-appropriate vocabulary (投放计划 / 审核 / 暂停 / 预算 / etc)", "kind": "artifact"},
+        {"text": "Mockup uses realistic Chinese names and demo data (not 'John Doe' / 'Acme Corp')", "kind": "artifact"},
+        {"text": "Mockup CSS sets body line-height >= 1.6 for CJK readability", "kind": "artifact"},
+        {"text": "Skill does NOT lock design-spec.md until user has approved the business mockup", "kind": "behavior"}
+      ]
+    },
+    {
+      "id": 10,
+      "name": "container-strategy-tinted-surface",
+      "prompt": "[In design mode Phase 3, user says] I don't want borders around our cards — I want them to feel like soft tinted blocks instead. The brand is warm and friendly.",
+      "files": [],
+      "expected_output": "Skill recognizes this as a containerStrategy = tinted-surface preference. Confirms and updates the spec. The Phase 4a preview and Phase 4b mockup MUST render containers with offset surface color (no border, no shadow), proving the model can express this dimension.",
+      "assertions": [
+        {"text": "Skill identifies the user's request as a containerStrategy decision (uses the term or equivalent)", "kind": "behavior"},
+        {"text": "Sets containerStrategy = tinted-surface in the working spec", "kind": "behavior"},
+        {"text": "Phase 4a preview renders cards with no border, surface color offset from page bg", "kind": "artifact"},
+        {"text": "Phase 4b business mockup CSS does not contain `border: 1px solid` on card-like containers", "kind": "artifact"},
+        {"text": "Phase 4b business mockup uses surface color offset for container separation", "kind": "artifact"}
+      ]
+    },
+    {
+      "id": 11,
+      "name": "decoration-marketing-vs-dashboard-split",
+      "prompt": "[In design mode Phase 3, after picking playful family for a kids' learning app] For the marketing site I want it lively — gradients, illustrations, the whole thing. But the actual app dashboard for parents should stay calm and focused. Can the design system express that?",
+      "files": [],
+      "expected_output": "Skill confirms decoration is a per-surface dimension, not global. Sets decoration policy: marketing = expressive gradients + illustration motifs, dashboard = none. design-spec.md section 7c shows the per-surface table. Phase 4b business mockup renders the dashboard surface CLEAN (no gradient, no illustration), proving the model honors per-surface policy.",
+      "assertions": [
+        {"text": "Skill confirms decoration can be set per-surface (does not force one global policy)", "kind": "behavior"},
+        {"text": "design-spec.md section 7c contains a per-surface table with marketing and dashboard rows", "kind": "artifact"},
+        {"text": "Marketing row shows expressive gradients + illustration motifs", "kind": "artifact"},
+        {"text": "Dashboard row shows decoration.gradients = none and decoration.motifs = none (or data-viz only)", "kind": "artifact"},
+        {"text": "Phase 4b dashboard mockup contains no gradient backgrounds or decorative illustrations", "kind": "artifact"}
+      ]
+    },
+    {
+      "id": 12,
+      "name": "phase-4b-gating-not-skipped",
+      "prompt": "[After Phase 4a, user says] OK, the preview looks roughly fine. Just write the design-spec.md and we'll iterate later.",
+      "files": [],
+      "expected_output": "Skill should NOT immediately jump to Phase 5. It should explain Phase 4b's role (the business mockup is the gating artifact — it surfaces issues the generic preview can't), offer to generate the mockup, and only skip to Phase 5 if the user explicitly insists. If user insists on skipping, the spec must note the deviation ('Validated against generic preview only; business mockup skipped per user request').",
+      "assertions": [
+        {"text": "Does NOT immediately generate design-spec.md after Phase 4a", "kind": "behavior"},
+        {"text": "Briefly explains why Phase 4b matters (one short paragraph max)", "kind": "behavior"},
+        {"text": "Offers to generate the business mockup with one focused question (which surface to mock)", "kind": "behavior"},
+        {"text": "If user insists on skipping, design-spec.md contains a note about Phase 4b being skipped", "kind": "artifact"},
+        {"text": "Does not lecture or block — defers to user's choice after one ask", "kind": "behavior"}
       ]
     }
   ]

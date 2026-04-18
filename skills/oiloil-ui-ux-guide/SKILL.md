@@ -61,17 +61,20 @@ These shape *how* the skill talks, not *what* it produces.
 
 ### `design` (default) — Design Spec Builder
 
-Output: `design-spec.md` in the project root.
+Output: `design-spec.md` in the project root, validated against a project-specific business mockup.
 
 1. **Phase 0 · Scan code** (silent, mandatory) — see precondition above.
-2. **Phase 1 · Listen** — open questions about product, audience, brand assets, references the user admires, hard constraints. No recommendations yet.
-3. **Phase 2 · Style Family selection** — if the user already named a clear style direction, confirm it and skip ahead. Otherwise present 2–4 candidate **style families** (`references/style-families/index.md`) as neutral options. The chosen family supplies a reasonable token starting point — the user can still override anything inside it.
-4. **Phase 3 · Visual choices** — for each remaining unknown (color, type, radius, spacing, shadow, motion) present 2–3 options drawn from the chosen family. Open the browser compare preview when the user hesitates.
-5. **Phase 4 · Full preview & iterate** — render the full design system on multiple surfaces (dashboard / marketing / form / content) using the preview template. Iterate by rewriting the JSON config only.
-6. **Phase 5 · Output** — generate `design-spec.md` (template in `references/design-spec-template.md`).
+2. **Phase 1 · Listen** — open questions about product, audience, brand assets, references the user admires, hard constraints, **primary locale**. No recommendations yet.
+3. **Phase 2 · Style Family selection** — if the user already named a clear direction, confirm it and skip ahead. Otherwise present 2–4 candidate **style families** (`references/style-families/index.md`) as neutral options. The chosen family supplies a token starting point — the user can override anything.
+4. **Phase 3 · Visual choices** — for each remaining unknown, present 2–3 options drawn from the chosen family. Token dimensions: color · type · radius · spacing · shadow · motion · **container strategy · icon system · decoration · locale**. The last four come from `references/extended-dimensions.md` and are real visual decisions; don't skip them.
+5. **Phase 4a · Generic preview** — render tokens on the static template's 5 surfaces (dashboard / marketing / content / form / pricing) for *exploration*. Switchers for container strategy / icon set / decoration / viewport / dark / locale. Iterate by rewriting the JSON config only.
+6. **Phase 4b · Business mockup** ← **the gating artifact**. Generate a standalone HTML of the user's *actual product surface*, in *their language*, applying the *full token set including extended dimensions*. The user makes the final ship/iterate decision here, not in the generic preview. Strict contract: `references/business-mockup-contract.md`.
+7. **Phase 5 · Output** — generate `design-spec.md` only after the user has signed off on the business mockup. Template: `references/design-spec-template.md`.
 
 Full flow: `references/design-interview.md`
 Style family library: `references/style-families/`
+Extended token dimensions (containerStrategy / iconSystem / decoration / locale): `references/extended-dimensions.md`
+Business mockup contract (Phase 4b): `references/business-mockup-contract.md`
 Preview template: `references/design-preview-template.html`
 
 ### `guide` — Compact rules for a surface
@@ -151,9 +154,11 @@ Always defer to the user's stated preference *unless* it violates a UX Hard Rule
 ## References
 
 - Listening-first interview flow (Phase 0 → output): `references/design-interview.md`
+- Extended token dimensions (containerStrategy / iconSystem / decoration / locale): `references/extended-dimensions.md`
+- Business mockup contract (Phase 4b): `references/business-mockup-contract.md`
 - Style family catalog: `references/style-families/index.md`
 - Per-family details: `references/style-families/<family>.md`
-- Design preview template (config-driven HTML, surface switcher, dark toggle): `references/design-preview-template.html`
+- Design preview template (config-driven HTML, surface / strategy / icon / decoration / viewport / theme / locale switchers): `references/design-preview-template.html`
 - `design-spec.md` output template: `references/design-spec-template.md`
 - System-level principles: `references/system-principles.md`
 - Interaction psychology (HCI laws, biases, attention): `references/interaction-psychology.md`
